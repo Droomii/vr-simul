@@ -29,14 +29,34 @@ const ChartMain = () => {
         const mouseDownHandler = (e: MouseEvent) => {
             const handleChangeOffset = candle.getOffsetSetter();
             const startX = e.x;
+            let movementX = 0;
+            let lastX = 0;
+
             const moveHandler = (e: MouseEvent) => {
                 handleChangeOffset(startX - e.x)
+                movementX = e.movementX;
+                lastX = e.x;
                 draw();
             }
 
             canvas.addEventListener('mousemove', moveHandler);
-            window.addEventListener('mouseup', () => {
+            window.addEventListener('mouseup', (e) => {
                 canvas.removeEventListener('mousemove', moveHandler)
+                let clicked = false;
+                window.addEventListener('mousedown', () => {
+                    clicked = true;
+                }, {once: true})
+
+                const inertiaHandler = () => {
+                    if (Math.abs(movementX) > 0.2 && !clicked) {
+                        lastX += movementX * 3
+                        handleChangeOffset(startX - lastX + Math.floor(movementX))
+                        movementX += movementX > 0 ? -0.1 : 0.1;
+                        draw()
+                        requestAnimationFrame(inertiaHandler)
+                    }
+                }
+                inertiaHandler()
             }, {once: true})
         }
 
