@@ -25,7 +25,6 @@ const ChartRSI = () => {
             const data = TQQQ.slice(-200);
             const rsi = data.map((v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
 
-            console.log(rsi)
             // draw RSI
             ctx.beginPath();
             ctx.moveTo(0, height - height * rsi[0] / 100);
@@ -47,7 +46,7 @@ const ChartRSI = () => {
         return () => {
             window.removeEventListener('resize', draw);
         }
-    }, [ref.current])
+    }, [])
 
 
 
