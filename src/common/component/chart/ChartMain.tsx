@@ -16,22 +16,38 @@ const ChartMain = () => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const candle = new Candle(ctx);
+        candle.setData(TQQQ)
 
         const draw = () => {
             // set the width and height of the canvas
             const {width, height} = wrapper.getBoundingClientRect();
             canvas.width = width;
             canvas.height = height;
-
-            candle.draw(TQQQ.slice(-200))
-
+            candle.draw()
         }
+
+        const mouseDownHandler = (e: MouseEvent) => {
+            const handleChangeOffset = candle.getOffsetSetter();
+            const startX = e.x;
+            const moveHandler = (e: MouseEvent) => {
+                handleChangeOffset(startX - e.x)
+                draw();
+            }
+
+            canvas.addEventListener('mousemove', moveHandler);
+            window.addEventListener('mouseup', () => {
+                canvas.removeEventListener('mousemove', moveHandler)
+            }, {once: true})
+        }
+
+        canvas.addEventListener('mousedown', mouseDownHandler)
 
         window.addEventListener('resize', draw);
         draw();
 
         return () => {
             window.removeEventListener('resize', draw);
+            canvas.removeEventListener('mousedown', mouseDownHandler)
         }
     }, [ref.current])
 
