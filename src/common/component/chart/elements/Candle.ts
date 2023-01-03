@@ -21,7 +21,7 @@ class Candle extends ChartElement<IStockData[]> {
             acc.lowest = Math.min(acc.lowest, low);
             return acc;
         }, {highest: Number.MIN_VALUE, lowest: Number.MAX_VALUE})
-        const normalize = (val: number) => Math.floor(Util.normalize(Math.log2(val), Math.log2(lowest), Math.log2(highest)) * this.containerHeight);
+        const normalize = (val: number) => Math.floor(Util.normalize(Math.log2(val), Math.log2(lowest * 0.9), Math.log2(highest / 0.9)) * this.containerHeight);
         const {ctx} = this;
 
         slicedData.map(({open, low, close, high}) => ({
@@ -53,6 +53,10 @@ class Candle extends ChartElement<IStockData[]> {
             if (newOffset < 0) return;
             this.offset = newOffset;
         }
+    }
+
+    handleZoom(val: number) {
+        this.width = Math.max(0.1, this.width + (val > 0 ? -0.1 : 0.1));
     }
 }
 

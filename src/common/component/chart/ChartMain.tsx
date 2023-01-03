@@ -60,6 +60,13 @@ const ChartMain = () => {
             }, {once: true})
         }
 
+        const wheelHandler = (e: WheelEvent) => {
+            candle.handleZoom(e.deltaY);
+            draw();
+        }
+
+        canvas.addEventListener('wheel', wheelHandler)
+
         canvas.addEventListener('mousedown', mouseDownHandler)
 
         window.addEventListener('resize', draw);
