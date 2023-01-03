@@ -5,12 +5,10 @@ import IStockData from "../../../../define/IStockData";
 class Candle extends ChartElement<IStockData[]> {
     private containerX = 0;
     private containerY = 0;
-    private containerWidth = this.ctx.canvas.width;
-    private containerHeight = this.ctx.canvas.height;
     private width = 3;
 
     draw(data: IStockData[]) {
-        const {highest, lowest} = data.reduce((acc, {low, high, open, close}) => {
+        const {highest, lowest} = data.reduce((acc, {low, high}) => {
             acc.highest = Math.max(acc.highest, high);
             acc.lowest = Math.min(acc.lowest, low);
             return acc;
@@ -31,29 +29,10 @@ class Candle extends ChartElement<IStockData[]> {
         })
     }
 
-    private _getAdjustedOption({open, low, close, high}: IStockData): IStockData {
-        return {
-            open: open + this.containerY,
-            low: low + this.containerY,
-            close: close + this.containerY,
-            high: high + this.containerY
-        }
+    private get containerHeight() {
+        return this.ctx.canvas.height;
     }
 
-    setContainer(x: number, y: number, width: number, height: number) {
-        this.containerX = x;
-        this.containerY = y;
-        this.containerWidth = width;
-        this.containerHeight = height;
-    }
-
-    setRange(highest: number, lowest: number) {
-
-    }
-
-    setWidth(width: number) {
-        this.width = width;
-    }
 }
 
 export default Candle
