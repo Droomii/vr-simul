@@ -2,9 +2,12 @@ import Util from "../../../util/Util";
 import TQQQ from "../../../stockData/TQQQ";
 import {useEffect, useRef} from "react";
 import styles from "./ChartMain.module.scss";
+import ChartRoot from "./elements/ChartRoot";
+import Line from "./elements/Line";
 
-const ChartRSI = () => {
+const ChartRSI = ({root}: {root: ChartRoot}) => {
     const ref = useRef<HTMLCanvasElement>(null);
+
 
     useEffect(() => {
         const {current: canvas} = ref;
@@ -16,28 +19,12 @@ const ChartRSI = () => {
         // get the context for the canvas
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
+        const line = new Line(root, ctx);
+        const rsi = TQQQ.map((v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
+        line.setData(rsi);
 
         const draw = () => {
-            // set the width and height of the canvas
-            const {width, height} = wrapper.getBoundingClientRect();
-            canvas.width = width;
-            canvas.height = height;
-            const data = TQQQ.slice(-200);
-            const rsi = data.map((v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
-
-            // draw RSI
-            ctx.beginPath();
-            ctx.moveTo(0, height - height * rsi[0] / 100);
-            ctx.strokeStyle = "red";
-
-            rsi.forEach(( v, i) => {
-                ctx.lineTo((i+1) * 4 - 3, height - height * v / 100);
-            })
-
-            ctx.lineTo(width, height - height - height * (rsi.at(-1) ?? 0) / 100)
-            ctx.stroke();
-            ctx.closePath();
-
+            root.refresh();
         }
 
         window.addEventListener('resize', draw);

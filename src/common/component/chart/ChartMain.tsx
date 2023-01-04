@@ -2,8 +2,9 @@ import {useEffect, useRef} from "react";
 import styles from './ChartMain.module.scss'
 import Candle from "./elements/Candle";
 import TQQQ from "../../../stockData/TQQQ";
+import ChartRoot from "./elements/ChartRoot";
 
-const ChartMain = () => {
+const ChartMain = ({root}: {root: ChartRoot}) => {
     const ref = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
         const {current: canvas} = ref;
@@ -15,16 +16,8 @@ const ChartMain = () => {
         // get the context for the canvas
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const candle = new Candle(ctx);
+        const candle = new Candle(root, ctx);
         candle.setData(TQQQ)
-
-        const draw = () => {
-            // set the width and height of the canvas
-            const {width, height} = wrapper.getBoundingClientRect();
-            canvas.width = width;
-            canvas.height = height;
-            candle.draw()
-        }
 
         const mouseDownHandler = (e: MouseEvent) => {
             const handleChangeOffset = candle.getOffsetSetter();
@@ -33,26 +26,26 @@ const ChartMain = () => {
             let lastX = 0;
 
             const moveHandler = (e: MouseEvent) => {
-                handleChangeOffset(startX - e.x)
+                const changed = handleChangeOffset(startX - e.x)
                 movementX = e.movementX;
                 lastX = e.x;
-                draw();
+                changed && root.refresh();
             }
 
             canvas.addEventListener('mousemove', moveHandler);
-            window.addEventListener('mouseup', (e) => {
+            window.addEventListener('mouseup', () => {
                 canvas.removeEventListener('mousemove', moveHandler)
-                let clicked = false;
+                let stop = false;
                 window.addEventListener('mousedown', () => {
-                    clicked = true;
+                    stop = true;
                 }, {once: true})
 
                 const inertiaHandler = () => {
-                    if (Math.abs(movementX) > 0.2 && !clicked) {
-                        lastX += movementX * 3
-                        handleChangeOffset(startX - lastX + Math.floor(movementX))
-                        movementX += movementX > 0 ? -0.1 : 0.1;
-                        draw()
+                    if (Math.abs(movementX) > 0.2 && !stop) {
+                        lastX += movementX * 2
+                        stop = handleChangeOffset(startX - lastX + Math.floor(movementX), true)
+                        movementX += movementX > 0 ? -0.2 : 0.2;
+                        root.refresh()
                         requestAnimationFrame(inertiaHandler)
                     }
                 }
@@ -62,18 +55,18 @@ const ChartMain = () => {
 
         const wheelHandler = (e: WheelEvent) => {
             candle.handleZoom(e.deltaY);
-            draw();
+            root.refresh();
         }
 
         canvas.addEventListener('wheel', wheelHandler)
 
         canvas.addEventListener('mousedown', mouseDownHandler)
 
-        window.addEventListener('resize', draw);
-        draw();
+        window.addEventListener('resize', root.refresh);
+        root.refresh();
 
         return () => {
-            window.removeEventListener('resize', draw);
+            window.removeEventListener('resize', root.refresh);
             canvas.removeEventListener('mousedown', mouseDownHandler)
         }
     }, [ref.current])
