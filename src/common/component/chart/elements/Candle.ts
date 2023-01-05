@@ -34,7 +34,7 @@ class Candle extends ChartElement<IStockData> {
         const originalOffset = this.root.offset;
         let lastOffset = this.root.offset;
         return (val: number, inertia?: boolean) => {
-            const newOffset = Math.min(Math.max(originalOffset + Math.floor(val / (this.zoom + 1)), 0), this.data.length - this.visibleDataCount);
+            const newOffset = Math.min(Math.max(originalOffset + Math.floor(val / this.zoom), 0), this.data.length - this.visibleDataCount);
             if (newOffset < 0 && inertia) return true;
             if (lastOffset === newOffset) return false;
             this.root.offset = newOffset;
