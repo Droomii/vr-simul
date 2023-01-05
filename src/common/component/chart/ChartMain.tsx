@@ -1,7 +1,6 @@
 import {useEffect, useRef} from "react";
 import styles from './ChartMain.module.scss'
 import Candle from "./elements/Candle";
-import TQQQ from "../../../stockData/TQQQ";
 import ChartRoot from "./elements/ChartRoot";
 
 const ChartMain = ({root}: {root: ChartRoot}) => {
@@ -17,7 +16,6 @@ const ChartMain = ({root}: {root: ChartRoot}) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const candle = new Candle(root, ctx);
-        candle.setData(TQQQ)
 
         const mouseDownHandler = (e: MouseEvent) => {
             const handleChangeOffset = candle.getOffsetSetter();
@@ -54,7 +52,7 @@ const ChartMain = ({root}: {root: ChartRoot}) => {
         }
 
         const wheelHandler = (e: WheelEvent) => {
-            candle.handleZoom(e.deltaY);
+            candle.handleZoom(e.deltaY, e.x - canvas.getBoundingClientRect().left);
             root.refresh();
         }
 
@@ -68,6 +66,7 @@ const ChartMain = ({root}: {root: ChartRoot}) => {
         return () => {
             window.removeEventListener('resize', root.refresh);
             canvas.removeEventListener('mousedown', mouseDownHandler)
+            canvas.removeEventListener('wheel', wheelHandler)
         }
     }, [ref.current])
 

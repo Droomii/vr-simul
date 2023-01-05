@@ -1,14 +1,16 @@
 import ChartRoot from "./ChartRoot";
+import IStockData from "../../../../define/IStockData";
 
-abstract class ChartElement<T> {
-    constructor(protected readonly root: ChartRoot, protected readonly ctx: CanvasRenderingContext2D) {
+abstract class ChartElement<T = IStockData> {
+    constructor(
+        protected readonly root: ChartRoot,
+    protected readonly ctx: CanvasRenderingContext2D,
+        protected readonly mapFunc: (v: IStockData, i: number, arr: IStockData[]) => T = v => v as T) {
         root.register(this);
     }
 
-    protected data: T[] = [];
-
-    setData(data: T[]) {
-        this.data = data;
+    protected get data() {
+        return this.root.data.map(this.mapFunc);
     }
 
     abstract draw(): void;

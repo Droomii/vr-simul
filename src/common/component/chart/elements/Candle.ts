@@ -43,8 +43,12 @@ class Candle extends ChartElement<IStockData> {
         }
     }
 
-    handleZoom(val: number) {
+    handleZoom(val: number, x: number) {
+        const rolledPos = Math.floor(x / this.zoom);
         this.root.zoom = Math.max(1, this.zoom * (1 + (val > 0 ? -0.1 : 0.1)));
+        const newPos = Math.floor(x / this.zoom);
+        const posDiff = rolledPos - newPos;
+        this.root.offset = Math.max(0, Math.min(this.root.offset + posDiff, this.data.length - this.visibleDataCount))
     }
 }
 

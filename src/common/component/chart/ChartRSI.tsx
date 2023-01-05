@@ -19,9 +19,7 @@ const ChartRSI = ({root}: {root: ChartRoot}) => {
         // get the context for the canvas
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const line = new Line(root, ctx);
-        const rsi = TQQQ.map((v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
-        line.setData(rsi);
+        new Line(root, ctx, (v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
 
         const draw = () => {
             root.refresh();
