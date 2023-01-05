@@ -1,19 +1,19 @@
-import ChartElement from "./ChartElement";
 import IStockData from "../../../../define/IStockData";
 import TQQQ from "../../../../stockData/TQQQ";
+import ChartController from "../controller/ChartController";
 
 class ChartRoot {
     zoom = 4;
     offset = 0;
-    elements: ChartElement<unknown>[] = [];
+    controllers: ChartController[] = [];
     data: IStockData[] = TQQQ;
 
-    register(element: ChartElement<unknown>) {
-        this.elements.push(element);
+    register(controller: ChartController) {
+        this.controllers.push(controller);
     }
 
     readonly refresh = () => {
-        this.elements.forEach(v => {
+        this.controllers.forEach(v => {
             v.clear();
             v.draw()
         });

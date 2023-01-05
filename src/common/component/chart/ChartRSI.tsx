@@ -3,7 +3,8 @@ import TQQQ from "../../../stockData/TQQQ";
 import {useEffect, useRef} from "react";
 import styles from "./ChartMain.module.scss";
 import ChartRoot from "./elements/ChartRoot";
-import Line from "./elements/Line";
+import RSI from "./elements/RSI";
+import ChartController from "./controller/ChartController";
 
 const ChartRSI = ({root}: {root: ChartRoot}) => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -19,7 +20,8 @@ const ChartRSI = ({root}: {root: ChartRoot}) => {
         // get the context for the canvas
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        new Line(root, ctx, (v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
+        const ctrl = new ChartController(root, ctx);
+        new RSI(ctrl, (v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
 
         const draw = () => {
             root.refresh();

@@ -2,8 +2,10 @@ import {useEffect, useRef} from "react";
 import styles from './ChartMain.module.scss'
 import Candle from "./elements/Candle";
 import ChartRoot from "./elements/ChartRoot";
+import ChartController from "./controller/ChartController";
+import Line from "./elements/Line";
 
-const ChartMain = ({root}: {root: ChartRoot}) => {
+const ChartMain = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
         const {current: canvas} = ref;
@@ -15,7 +17,12 @@ const ChartMain = ({root}: {root: ChartRoot}) => {
         // get the context for the canvas
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const candle = new Candle(root, ctx);
+        const chartCtrl = new ChartController(root, ctx);
+        const candle = new Candle(chartCtrl);
+        new Line(chartCtrl, (v, i, acc) => {
+            const sliced = acc.slice(Math.max(0, i - 30), i + 1);
+            return sliced.reduce((a, b) => a + b.close, 0) / sliced.length
+        })
 
         const mouseDownHandler = (e: MouseEvent) => {
             const handleChangeOffset = candle.getOffsetSetter();
