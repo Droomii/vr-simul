@@ -1,4 +1,9 @@
 import {IStockHistory} from "../define/IStockHistory";
+import IStockData from "../define/IStockData";
+
+const DAY = 86400000;
+const WEEK = DAY * 7;
+const FIRST_MONDAY = DAY * 3;
 
 class Util {
     private static tolerance = 10e-20;
@@ -88,6 +93,48 @@ class Util {
         }
 
         return result;
+    }
+
+    static getWeek(date: number) {
+        return Math.floor((new Date(date).getTime() + FIRST_MONDAY) / WEEK)
+    }
+
+    static toWeek(data: IStockData[]): IStockData[] {
+        if (!data.length) return [];
+        return data.reduce((acc, v) => {
+            const lastData = acc.at(-1);
+            if (!lastData) return acc;
+            const thisWeek = this.getWeek(v.date);
+            const lastWeek = this.getWeek(lastData.date);
+            if (lastWeek < thisWeek) {
+                acc.push({...v})
+            } else {
+                lastData.high = Math.max(lastData.high, v.high);
+                lastData.low = Math.min(lastData.low, v.low);
+                lastData.close = v.close;
+            }
+
+            return acc;
+        }, [{...data[0]}])
+    }
+
+    static toMonth(data: IStockData[]): IStockData[] {
+        if (!data.length) return [];
+        return data.reduce((acc, v) => {
+            const lastData = acc.at(-1);
+            if (!lastData) return acc;
+            const thisMonth = new Date(v.date).getMonth();
+            const lastMonth = new Date(lastData.date).getMonth();
+            if (thisMonth !== lastMonth) {
+                acc.push({...v})
+            } else {
+                lastData.high = Math.max(lastData.high, v.high);
+                lastData.low = Math.min(lastData.low, v.low);
+                lastData.close = v.close;
+            }
+
+            return acc;
+        }, [{...data[0]}])
     }
 }
 

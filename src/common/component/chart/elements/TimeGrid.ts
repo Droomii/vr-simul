@@ -1,9 +1,6 @@
 import ChartElement from "./ChartElement";
 import ChartController from "../controller/ChartController";
-
-const DAY = 86400000;
-const WEEK = DAY * 7;
-const FIRST_MONDAY = DAY * 3;
+import Util from "../../../../util/Util";
 
 interface TimeGridOptions {
     unit?: 'week' | 'month';
@@ -17,7 +14,7 @@ class TimeGrid extends ChartElement<number> {
             if (options?.unit === 'month') {
                 return Math.floor(new Date(date).getMonth() / bin) % 2;
             }
-            return Math.floor((new Date(date).getTime() + FIRST_MONDAY) / (WEEK * bin)) % 2;
+            return Math.floor(Util.getWeek(date) / bin) % 2;
         }));
     }
 

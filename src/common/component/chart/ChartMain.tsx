@@ -19,7 +19,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const chartCtrl = new ChartController(root, ctx, {normalize: true});
-        new TimeGrid(chartCtrl, {unit: 'week', bin: 2});
+        new TimeGrid(chartCtrl, {unit: 'month'});
         new XTick(chartCtrl);
 
         const candle = new Candle(chartCtrl);
