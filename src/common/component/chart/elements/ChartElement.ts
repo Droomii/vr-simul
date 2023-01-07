@@ -1,13 +1,13 @@
-import IStockData from "../../../../define/IStockData";
+import IStockHistory from "../../../../define/IStockHistory";
 import ChartController from "../controller/ChartController";
 import IDrawable from "../interface/IDrawable";
 
-abstract class ChartElement<T = IStockData> implements IDrawable {
+abstract class ChartElement<T = IStockHistory> implements IDrawable {
     protected _data: T[] = [];
 
     constructor(
         protected readonly controller: ChartController,
-        protected readonly mapFunc: (v: IStockData, i: number, arr: IStockData[]) => T = v => v as T) {
+        protected readonly mapFunc: (v: IStockHistory, i: number, arr: IStockHistory[]) => T = v => v as T) {
         controller.register(this);
         this.setData();
     }
@@ -22,15 +22,6 @@ abstract class ChartElement<T = IStockData> implements IDrawable {
 
     abstract draw(): void;
 
-    clear() {
-        const wrapper = this.ctx.canvas.parentElement;
-        if (!wrapper) return;
-
-        const {width, height} = wrapper.getBoundingClientRect();
-        this.ctx.canvas.width = width;
-        this.ctx.canvas.height = height;
-    }
-
     protected get zoom() {
         return this.controller.zoom;
     }
@@ -41,15 +32,15 @@ abstract class ChartElement<T = IStockData> implements IDrawable {
     }
 
     protected get width() {
-        return this.ctx.canvas.width;
+        return this.controller.width;
     }
 
     protected get height() {
-        return this.ctx.canvas.height;
+        return this.controller.height;
     }
 
     protected get visibleDataCount() {
-        return Math.floor(this.ctx.canvas.width / (this.zoom));
+        return this.controller.visibleDataCount;
     }
 
     get slicedData() {

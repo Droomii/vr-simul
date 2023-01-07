@@ -1,12 +1,12 @@
-import IStockData from "../../../../define/IStockData";
+import IStockHistory from "../../../../define/IStockHistory";
 import TQQQ from "../../../../stockData/TQQQ";
 import ChartController from "../controller/ChartController";
 
 class ChartRoot {
-    zoom = 4;
+    zoom = 6;
     offset = 0;
     controllers: Set<ChartController> = new Set();
-    data: IStockData[] = TQQQ;
+    data: IStockHistory[] = TQQQ;
 
     register(controller: ChartController) {
         this.controllers.add(controller);

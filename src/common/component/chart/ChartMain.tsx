@@ -22,12 +22,12 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         new TimeGrid(chartCtrl, {unit: 'month'});
         new XTick(chartCtrl);
 
-        const candle = new Candle(chartCtrl);
+        new Candle(chartCtrl);
 
         const {refresh} = root;
 
         const mouseDownHandler = (e: MouseEvent) => {
-            const handleChangeOffset = candle.getOffsetSetter();
+            const handleChangeOffset = chartCtrl.getOffsetSetter();
             const startX = e.x;
             let movementX = 0;
             let lastX = 0;
@@ -68,7 +68,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         }
 
         const wheelHandler = (e: WheelEvent) => {
-            candle.handleZoom(e.deltaY, e.x - canvas.getBoundingClientRect().left);
+            chartCtrl.handleZoom(e.deltaY, e.x - canvas.getBoundingClientRect().left);
             refresh();
         }
 

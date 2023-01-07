@@ -1,5 +1,4 @@
-import {IStockHistory} from "../define/IStockHistory";
-import IStockData from "../define/IStockData";
+import IStockHistory from "../define/IStockHistory";
 
 const DAY = 86400000;
 const WEEK = DAY * 7;
@@ -99,7 +98,7 @@ class Util {
         return Math.floor((new Date(date).getTime() + FIRST_MONDAY) / WEEK)
     }
 
-    static toWeek(data: IStockData[]): IStockData[] {
+    static toWeek(data: IStockHistory[]): IStockHistory[] {
         if (!data.length) return [];
         return data.reduce((acc, v) => {
             const lastData = acc.at(-1);
@@ -118,7 +117,7 @@ class Util {
         }, [{...data[0]}])
     }
 
-    static toMonth(data: IStockData[]): IStockData[] {
+    static toMonth(data: IStockHistory[]): IStockHistory[] {
         if (!data.length) return [];
         return data.reduce((acc, v) => {
             const lastData = acc.at(-1);

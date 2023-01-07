@@ -1,4 +1,4 @@
-export interface IStockHistory {
+interface IStockHistory {
     date: number;
     open: number;
     close: number;
@@ -8,3 +8,5 @@ export interface IStockHistory {
     volume: number;
     ratio: number;
 }
+
+export default IStockHistory;

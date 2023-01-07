@@ -1,6 +1,6 @@
 import ChartElement from "./ChartElement";
 import ChartController from "../controller/ChartController";
-import IStockData from "../../../../define/IStockData";
+import IStockHistory from "../../../../define/IStockHistory";
 
 interface AreaData {
     top: number;
@@ -19,7 +19,7 @@ class Area extends ChartElement<AreaData> {
     }
 
     constructor(controller: ChartController,
-                mapFunc: (v: IStockData, i: number, arr: IStockData[]) => AreaData, options?: AreaOptions) {
+                mapFunc: (v: IStockHistory, i: number, arr: IStockHistory[]) => AreaData, options?: AreaOptions) {
         super(controller, mapFunc);
 
         if (options) {
