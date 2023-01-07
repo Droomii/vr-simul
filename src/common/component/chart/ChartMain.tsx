@@ -26,19 +26,36 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
 
         const {refresh} = root;
 
+        let isMouseDown = false;
+
         const mouseDownHandler = (e: MouseEvent) => {
+            isMouseDown = true;
             const handleChangeOffset = chartCtrl.getOffsetSetter();
             const startX = e.x;
             let movementX = 0;
             let lastX = 0;
             let isMoving = false;
+
+            const moveDecay = () => {
+                if (Math.abs(movementX) < 0.2) {
+                    movementX = 0;
+                } else {
+                    movementX /= 1.2;
+                }
+
+                if (isMouseDown) {
+                    requestAnimationFrame(moveDecay);
+                }
+            }
+
+            moveDecay();
             const moveHandler = (e: MouseEvent) => {
                 if (isMoving) {
                     return;
                 }
                 isMoving = true;
                 const changed = handleChangeOffset(startX - e.x)
-                movementX = e.movementX;
+                movementX = (movementX + e.movementX);
                 lastX = e.x;
                 changed && refresh();
                 requestAnimationFrame(() => {
@@ -48,6 +65,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
 
             canvas.addEventListener('mousemove', moveHandler);
             window.addEventListener('mouseup', () => {
+                isMouseDown = false;
                 canvas.removeEventListener('mousemove', moveHandler)
                 let stop = false;
                 window.addEventListener('mousedown', () => {
@@ -56,7 +74,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
 
                 const inertiaHandler = () => {
                     if (Math.abs(movementX) > 0.2 && !stop) {
-                        lastX += movementX * 2
+                        lastX += movementX
                         stop = handleChangeOffset(startX - lastX + Math.floor(movementX), true)
                         movementX += movementX > 0 ? -0.2 : 0.2;
                         refresh()
@@ -84,7 +102,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
             canvas.removeEventListener('wheel', wheelHandler)
             chartCtrl.destroy();
         }
-    }, [])
+    }, [root])
 
 
     return <div className={styles.wrapper}>

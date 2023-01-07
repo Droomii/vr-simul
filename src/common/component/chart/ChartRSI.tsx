@@ -25,7 +25,7 @@ const ChartRSI = ({root}: { root: ChartRoot }) => {
         return () => {
             ctrl.destroy();
         }
-    }, [])
+    }, [root])
 
 
     return <div className={styles.wrapper}>
