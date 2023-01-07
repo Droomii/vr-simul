@@ -3,8 +3,8 @@ import styles from './ChartMain.module.scss'
 import Candle from "./elements/Candle";
 import ChartRoot from "./elements/ChartRoot";
 import ChartController from "./controller/ChartController";
-import Line from "./elements/Line";
 import XTick from "./elements/XTick";
+import MovingAvgLine from "./elements/MovingAvgLine";
 
 const ChartMain = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -21,10 +21,9 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         const chartCtrl = new ChartController(root, ctx, {normalize: true});
         new XTick(chartCtrl);
         const candle = new Candle(chartCtrl);
-        new Line(chartCtrl, (v, i, acc) => {
-            const sliced = acc.slice(Math.max(0, i - 30), i + 1);
-            return sliced.reduce((a, b) => a + b.close, 0) / sliced.length
-        })
+        new MovingAvgLine(chartCtrl, 30);
+        new MovingAvgLine(chartCtrl, 60, 'blue');
+        new MovingAvgLine(chartCtrl, 200, 'green');
 
         const {refresh} = root;
 
