@@ -37,7 +37,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
             let isMoving = false;
 
             const moveDecay = () => {
-                if (Math.abs(movementX) < 0.2) {
+                if (Math.abs(movementX) < 5) {
                     movementX = 0;
                 } else {
                     movementX /= 1.2;
