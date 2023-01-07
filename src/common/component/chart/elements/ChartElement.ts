@@ -2,7 +2,6 @@ import IStockData from "../../../../define/IStockData";
 import ChartController from "../controller/ChartController";
 
 abstract class ChartElement<T = IStockData> {
-    protected _clearBeforeDraw = true;
     protected _data: T[] = [];
 
     constructor(
@@ -20,14 +19,9 @@ abstract class ChartElement<T = IStockData> {
         return this._data;
     }
 
-    setClearBeforeDraw(val: boolean) {
-        this._clearBeforeDraw = val;
-    }
-
     abstract draw(): void;
 
     clear() {
-        if (!this._clearBeforeDraw) return;
         const wrapper = this.ctx.canvas.parentElement;
         if (!wrapper) return;
 
