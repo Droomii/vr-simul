@@ -6,6 +6,7 @@ import ChartController from "./controller/ChartController";
 import XTick from "./elements/XTick";
 import MovingAvgLine from "./elements/MovingAvgLine";
 import LineArea from "./elements/LineArea";
+import TimeGrid from "./elements/TimeGrid";
 
 const ChartMain = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -20,6 +21,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const chartCtrl = new ChartController(root, ctx, {normalize: true});
+        new TimeGrid(chartCtrl, {unit: 'week', weekBin: 2});
         new XTick(chartCtrl);
         new LineArea(chartCtrl, ({high, low}) => ({top: high * 1.1, bottom: low * 0.9}), {
             bottomStroke: 'green'

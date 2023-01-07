@@ -1,4 +1,5 @@
 interface IStockData {
+    date: number;
     high: number;
     low: number;
     open: number;
