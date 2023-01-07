@@ -4,7 +4,7 @@ import IStockData from "../../../../define/IStockData";
 class Candle extends ChartElement<IStockData> {
     draw() {
         const {ctx} = this;
-        const normalize = this.controller.getNormalizeFunc();
+        const {normalize} = this.controller;
         this.slicedData.map(({open, low, close, high}) => ({
             open: normalize(open),
             low: normalize(low),

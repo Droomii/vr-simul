@@ -25,6 +25,7 @@ abstract class ChartElement<T = IStockData> {
     }
 
     abstract draw(): void;
+
     clear() {
         if (!this._clearBeforeDraw) return;
         const wrapper = this.ctx.canvas.parentElement;
@@ -64,7 +65,7 @@ abstract class ChartElement<T = IStockData> {
         return this.controller.ctx
     }
 
-    abstract get range(): {lowest: number, highest: number};
+    abstract get range(): { lowest: number, highest: number } | null;
 }
 
 export default ChartElement;

@@ -6,7 +6,7 @@ import ChartRoot from "./elements/ChartRoot";
 import RSI from "./elements/RSI";
 import ChartController from "./controller/ChartController";
 
-const ChartRSI = ({root}: {root: ChartRoot}) => {
+const ChartRSI = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
 
 
@@ -23,19 +23,10 @@ const ChartRSI = ({root}: {root: ChartRoot}) => {
         const ctrl = new ChartController(root, ctx);
         new RSI(ctrl, (v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
 
-        const draw = () => {
-            root.refresh();
-        }
-
-        window.addEventListener('resize', draw);
-        draw();
-
         return () => {
-            window.removeEventListener('resize', draw);
+            ctrl.destroy();
         }
     }, [])
-
-
 
 
     return <div className={styles.wrapper}>

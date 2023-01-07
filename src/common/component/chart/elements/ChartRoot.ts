@@ -5,11 +5,15 @@ import ChartController from "../controller/ChartController";
 class ChartRoot {
     zoom = 4;
     offset = 0;
-    controllers: ChartController[] = [];
+    controllers: Set<ChartController> = new Set();
     data: IStockData[] = TQQQ;
 
     register(controller: ChartController) {
-        this.controllers.push(controller);
+        this.controllers.add(controller);
+    }
+
+    unregister(controller: ChartController) {
+        this.controllers.delete(controller);
     }
 
     readonly refresh = () => {

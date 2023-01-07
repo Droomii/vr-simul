@@ -4,6 +4,7 @@ import Candle from "./elements/Candle";
 import ChartRoot from "./elements/ChartRoot";
 import ChartController from "./controller/ChartController";
 import Line from "./elements/Line";
+import XTick from "./elements/XTick";
 
 const ChartMain = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -17,12 +18,15 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         // get the context for the canvas
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const chartCtrl = new ChartController(root, ctx);
+        const chartCtrl = new ChartController(root, ctx, {normalize: true});
+        new XTick(chartCtrl);
         const candle = new Candle(chartCtrl);
         new Line(chartCtrl, (v, i, acc) => {
             const sliced = acc.slice(Math.max(0, i - 30), i + 1);
             return sliced.reduce((a, b) => a + b.close, 0) / sliced.length
         })
+
+        const {refresh} = root;
 
         const mouseDownHandler = (e: MouseEvent) => {
             const handleChangeOffset = candle.getOffsetSetter();
@@ -34,7 +38,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
                 const changed = handleChangeOffset(startX - e.x)
                 movementX = e.movementX;
                 lastX = e.x;
-                changed && root.refresh();
+                changed && refresh();
             }
 
             canvas.addEventListener('mousemove', moveHandler);
@@ -50,7 +54,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
                         lastX += movementX * 2
                         stop = handleChangeOffset(startX - lastX + Math.floor(movementX), true)
                         movementX += movementX > 0 ? -0.2 : 0.2;
-                        root.refresh()
+                        refresh()
                         requestAnimationFrame(inertiaHandler)
                     }
                 }
@@ -60,22 +64,23 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
 
         const wheelHandler = (e: WheelEvent) => {
             candle.handleZoom(e.deltaY, e.x - canvas.getBoundingClientRect().left);
-            root.refresh();
+            refresh();
         }
 
         canvas.addEventListener('wheel', wheelHandler)
 
         canvas.addEventListener('mousedown', mouseDownHandler)
 
-        window.addEventListener('resize', root.refresh);
-        root.refresh();
+        window.addEventListener('resize', refresh);
+        refresh();
 
         return () => {
-            window.removeEventListener('resize', root.refresh);
+            window.removeEventListener('resize', refresh);
             canvas.removeEventListener('mousedown', mouseDownHandler)
             canvas.removeEventListener('wheel', wheelHandler)
+            chartCtrl.destroy();
         }
-    }, [ref.current])
+    }, [])
 
 
     return <div className={styles.wrapper}>
