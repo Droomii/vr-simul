@@ -7,16 +7,17 @@ const FIRST_MONDAY = DAY * 3;
 
 interface TimeGridOptions {
     unit?: 'week' | 'month';
-    weekBin?: number;
+    bin?: number;
 }
 
 class TimeGrid extends ChartElement<number> {
     constructor(ctrl: ChartController, options?: TimeGridOptions) {
         super(ctrl, (({date}) => {
+            const bin = options?.bin ?? 1;
             if (options?.unit === 'month') {
-                return new Date(date).getMonth() % 2;
+                return Math.floor(new Date(date).getMonth() / bin) % 2;
             }
-            return Math.floor((new Date(date).getTime() + FIRST_MONDAY) / (WEEK * (options?.weekBin ?? 1))) % 2;
+            return Math.floor((new Date(date).getTime() + FIRST_MONDAY) / (WEEK * bin)) % 2;
         }));
     }
 

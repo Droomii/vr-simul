@@ -1,7 +1,8 @@
 import IStockData from "../../../../define/IStockData";
 import ChartController from "../controller/ChartController";
+import IDrawable from "../interface/IDrawable";
 
-abstract class ChartElement<T = IStockData> {
+abstract class ChartElement<T = IStockData> implements IDrawable {
     protected _data: T[] = [];
 
     constructor(
@@ -60,6 +61,10 @@ abstract class ChartElement<T = IStockData> {
     }
 
     abstract get range(): { lowest: number, highest: number } | null;
+
+    protected get isLog() {
+        return this.controller.isLog;
+    }
 }
 
 export default ChartElement;

@@ -38,7 +38,7 @@ class Candle extends ChartElement<IStockData> {
 
     handleZoom(val: number, x: number) {
         const rolledPos = Math.floor(x / this.zoom);
-        this.controller.zoom = Math.max(1, this.zoom * (1 + (val > 0 ? -0.1 : 0.1)));
+        this.controller.zoom = Math.min(Math.max(this.width / this.data.length, this.zoom * (1 + (val > 0 ? -0.1 : 0.1))), this.width);
         const newPos = Math.floor(x / this.zoom);
         const posDiff = rolledPos - newPos;
         this.controller.offset = Math.max(0, Math.min(this.controller.offset + posDiff, this.data.length - this.visibleDataCount))

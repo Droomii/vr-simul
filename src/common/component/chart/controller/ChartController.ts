@@ -1,25 +1,25 @@
 import ChartRoot from "../elements/ChartRoot";
-import ChartElement from "../elements/ChartElement";
 import Util from "../../../../util/Util";
+import IDrawable from "../interface/IDrawable";
 
 interface ConstructorOptions {
     debug?: string;
     normalize?: boolean
 }
 
-class ChartController {
-    elements: ChartElement<unknown>[] = [];
+class ChartController implements IDrawable {
+    elements: IDrawable[] = [];
     isLog = true;
-    private readonly _isNormalize: boolean = false;
+    protected _isNormalize: boolean = false;
 
     constructor(
-        protected readonly root: ChartRoot,
+        public readonly root: ChartRoot,
         readonly ctx: CanvasRenderingContext2D, options?: ConstructorOptions) {
         root.register(this);
         this._isNormalize = options?.normalize ?? false;
     }
 
-    register(element: ChartElement<unknown>) {
+    register(element: IDrawable) {
         this.elements.push(element);
     }
 
@@ -64,7 +64,7 @@ class ChartController {
 
     readonly range: { highest: number, lowest: number } = {highest: Number.MAX_VALUE, lowest: Number.MIN_VALUE};
 
-    private updateRange() {
+    protected updateRange() {
         const {highest, lowest} = this.elements.reduce((acc, {range}) => {
             if (!range) return acc;
             const {highest, lowest} = range;
@@ -78,8 +78,13 @@ class ChartController {
 
     private updateNormalizer() {
         const {highest, lowest} = this.range;
+        const {multiplier} = this;
+        this.normalize = (val: number) => Math.floor(Util.normalize(multiplier(val), multiplier(lowest * 0.9), this.multiplier(highest / 0.9)) * this.containerHeight);
+    }
 
-        this.normalize = (val: number) => Math.floor(Util.normalize(Math.log2(val), Math.log2(lowest * 0.9), Math.log2(highest / 0.9)) * this.containerHeight);
+    get multiplier(): (val: number) => number {
+        if (this.isLog) return Math.log2;
+        return (v) => v;
     }
 
     normalize = (val: number) => val;
