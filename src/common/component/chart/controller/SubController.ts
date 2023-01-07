@@ -10,7 +10,6 @@ class SubController extends ChartController {
         protected readonly controller: ChartController, options?: ConstructorOptions) {
         super(controller.root, controller.ctx, options);
         this.controller.register(this);
-        this._isNormalize = options?.normalize ?? false;
     }
 }
 

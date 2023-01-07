@@ -4,23 +4,30 @@ import IDrawable from "../interface/IDrawable";
 
 interface ConstructorOptions {
     debug?: string;
-    normalize?: boolean
+    log?: boolean;
 }
 
 class ChartController implements IDrawable {
     elements: IDrawable[] = [];
-    isLog = true;
-    protected _isNormalize: boolean = false;
+    isLog = false;
 
     constructor(
         public readonly root: ChartRoot,
         readonly ctx: CanvasRenderingContext2D, options?: ConstructorOptions) {
+        if (options) {
+            this.isLog = options.log ?? false;
+        }
+
         root.register(this);
-        this._isNormalize = options?.normalize ?? false;
     }
 
     register(element: IDrawable) {
         this.elements.push(element);
+    }
+
+    refresh() {
+        this.clear();
+        this.draw();
     }
 
     clear() {
@@ -35,7 +42,7 @@ class ChartController implements IDrawable {
 
     draw() {
         this.updateRange();
-        this._isNormalize && this.updateNormalizer();
+        this.updateNormalizer();
         this.elements.forEach(v => v.draw());
     }
 

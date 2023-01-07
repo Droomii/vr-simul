@@ -18,8 +18,7 @@ class ChartRoot {
 
     readonly refresh = () => {
         this.controllers.forEach(v => {
-            v.clear();
-            v.draw()
+            v.refresh();
         });
     }
 }

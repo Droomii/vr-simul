@@ -18,7 +18,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         // get the context for the canvas
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        const chartCtrl = new ChartController(root, ctx, {normalize: true});
+        const chartCtrl = new ChartController(root, ctx, {log: true});
         new TimeGrid(chartCtrl, {unit: 'month'});
         new XTick(chartCtrl);
 
@@ -77,8 +77,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         canvas.addEventListener('mousedown', mouseDownHandler)
 
         window.addEventListener('resize', refresh);
-        refresh();
-
+        chartCtrl.refresh();
         return () => {
             window.removeEventListener('resize', refresh);
             canvas.removeEventListener('mousedown', mouseDownHandler)

@@ -1,5 +1,4 @@
 import Util from "../../../util/Util";
-import TQQQ from "../../../stockData/TQQQ";
 import {useEffect, useRef} from "react";
 import styles from "./ChartMain.module.scss";
 import ChartRoot from "./elements/ChartRoot";
@@ -21,8 +20,8 @@ const ChartRSI = ({root}: { root: ChartRoot }) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const ctrl = new ChartController(root, ctx);
-        new RSI(ctrl, (v, i) => Util.dropDecimal(Util.getRsi(TQQQ.slice(i - 14, i).map(v => v.close)), 2));
-
+        new RSI(ctrl, (v, i, arr) => Util.dropDecimal(Util.getRsi(arr.slice(i - 14, i).map(v => v.close)), 2));
+        ctrl.refresh();
         return () => {
             ctrl.destroy();
         }

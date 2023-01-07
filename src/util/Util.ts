@@ -130,6 +130,7 @@ class Util {
                 lastData.high = Math.max(lastData.high, v.high);
                 lastData.low = Math.min(lastData.low, v.low);
                 lastData.close = v.close;
+                lastData.volume += v.volume;
             }
 
             return acc;
