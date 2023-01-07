@@ -5,6 +5,7 @@ import ChartRoot from "./elements/ChartRoot";
 import ChartController from "./controller/ChartController";
 import XTick from "./elements/XTick";
 import MovingAvgLine from "./elements/MovingAvgLine";
+import LineArea from "./elements/LineArea";
 
 const ChartMain = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -20,6 +21,9 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         if (!ctx) return;
         const chartCtrl = new ChartController(root, ctx, {normalize: true});
         new XTick(chartCtrl);
+        new LineArea(chartCtrl, ({high, low}) => ({top: high * 1.1, bottom: low * 0.9}), {
+            bottomStroke: 'green'
+        });
         const candle = new Candle(chartCtrl);
         new MovingAvgLine(chartCtrl, 30);
         new MovingAvgLine(chartCtrl, 60, 'blue');

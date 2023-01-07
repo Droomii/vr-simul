@@ -1,20 +1,20 @@
 import ChartElement from "./ChartElement";
 
 class Line extends ChartElement<number> {
-    private _color = 'red';
+    private _stroke = 'red';
 
     setColor(color: string) {
-        this._color = color;
+        this._stroke = color;
     }
 
     draw() {
         const {ctx} = this;
         const {normalize} = this.controller;
         const normalizedData = this.slicedData.map(normalize);
-        // draw RSI
+
         ctx.beginPath();
         ctx.moveTo(0, this.height - normalizedData[0]);
-        ctx.strokeStyle = this._color;
+        ctx.strokeStyle = this._stroke;
 
         normalizedData.forEach((v, i) => {
             ctx.lineTo((i + 1) * this.zoom - Math.floor((this.zoom / 2)), this.height - v);
