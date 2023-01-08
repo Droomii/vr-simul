@@ -3,7 +3,7 @@ import ChartController from "../controller/ChartController";
 import Util from "../../../../util/Util";
 
 interface TimeGridOptions {
-    unit?: 'week' | 'month';
+    unit?: 'week' | 'month' | 'year';
     bin?: number;
 }
 
@@ -13,6 +13,10 @@ class TimeGrid extends ChartElement<number> {
             const bin = options?.bin ?? 1;
             if (options?.unit === 'month') {
                 return Math.floor(new Date(date).getMonth() / bin) % 2;
+            }
+
+            if (options?.unit === 'year') {
+                return new Date(date).getFullYear() % 2
             }
             return Math.floor(Util.getWeek(date) / bin) % 2;
         }));
