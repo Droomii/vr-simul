@@ -38,15 +38,27 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
             return data.map(v => {
                 const week = Math.floor(Util.getWeek(v.date) / 2);
                 if (lastWeek !== week) {
-                    pool += 1000;
+                    pool += 250;
                     const buyCount = Math.floor(pool / v.close);
                     stockCount += buyCount;
                     pool -= v.close * buyCount;
                     lastWeek = week;
                 }
-                return {top: stockCount * v.close, bottom: (week - firstWeek + 1) * 1000}
+                return {top: stockCount * v.close, bottom: (week - firstWeek + 1) * 250}
             })
         }, {bottomStroke: 'black'})
+
+        new LineArea(subCtrl, data => {
+            const firstWeek = Math.floor(Util.getWeek(data[0].date) / 2);
+            const latest = data.at(-1);
+            if (!latest) return data.map(v => ({top: v.close}));
+            const latestWeek = Math.floor(Util.getWeek(latest.date) / 2);
+            const money = (latestWeek - firstWeek) * 250
+            let stockCount = Math.floor(money / latest.close);
+            return data.map(v => {
+                return {top: stockCount * v.close}
+            })
+        }, {topStroke: 'red', fill: 'rgba(255,140,140,0.29)'})
 
         const {refresh} = root;
 
