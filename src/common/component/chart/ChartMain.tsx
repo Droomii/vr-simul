@@ -46,7 +46,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
                 }
                 return {top: stockCount * v.close, bottom: (week - firstWeek + 1) * 250}
             })
-        }, {bottomStroke: 'black'})
+        })
 
         new LineArea(subCtrl, data => {
             const firstWeek = Math.floor(Util.getWeek(data[0].date) / 2);
@@ -56,9 +56,9 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
             const money = (latestWeek - firstWeek) * 250
             let stockCount = Math.floor(money / latest.close);
             return data.map(v => {
-                return {top: stockCount * v.close}
+                return {top: stockCount * v.close, bottom: money}
             })
-        }, {topStroke: 'red', fill: 'rgba(255,140,140,0.29)'})
+        }, {topStroke: 'red', fill: 'rgba(255,140,140,0.29)', bottomStroke: 'red'})
 
         const {refresh} = root;
 
