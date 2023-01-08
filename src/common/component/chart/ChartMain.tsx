@@ -5,6 +5,9 @@ import ChartRoot from "./elements/ChartRoot";
 import ChartController from "./controller/ChartController";
 import XTick from "./elements/XTick";
 import TimeGrid from "./elements/TimeGrid";
+import Line from "./elements/Line";
+import Util from "../../../util/Util";
+import SubController from "./controller/SubController";
 
 const ChartMain = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -19,10 +22,16 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         const chartCtrl = new ChartController(root, ctx, {log: true});
-        new TimeGrid(chartCtrl, {unit: 'month'});
-        new XTick(chartCtrl);
 
+        new TimeGrid(chartCtrl, {unit: 'week'});
+        new XTick(chartCtrl);
         new Candle(chartCtrl);
+
+        const subCtrl = new SubController(chartCtrl, {log: true});
+        new Line(subCtrl, (v, i) => {
+            const week = Math.floor(Util.getWeek(v.date) / 2);
+            return week * 250;
+        })
 
         const {refresh} = root;
 
@@ -73,10 +82,10 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
                 }, {once: true})
 
                 const inertiaHandler = () => {
-                    if (Math.abs(movementX) > 0.2 && !stop) {
+                    if (Math.abs(movementX) >= 1 && !stop) {
                         lastX += movementX
                         stop = handleChangeOffset(startX - lastX + Math.floor(movementX), true)
-                        movementX += movementX > 0 ? -0.2 : 0.2;
+                        movementX += movementX > 0 ? -1 : 1;
                         refresh()
                         requestAnimationFrame(inertiaHandler)
                     }

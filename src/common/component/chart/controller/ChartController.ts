@@ -5,6 +5,7 @@ import IDrawable from "../interface/IDrawable";
 interface ConstructorOptions {
     debug?: string;
     log?: boolean;
+    isSub?: boolean;
 }
 
 class ChartController implements IDrawable {
@@ -18,7 +19,7 @@ class ChartController implements IDrawable {
             this.isLog = options.log ?? false;
         }
 
-        root.register(this);
+        if (!options?.isSub) root.register(this);
     }
 
     register(element: IDrawable) {
@@ -37,10 +38,10 @@ class ChartController implements IDrawable {
         const {width, height} = wrapper.getBoundingClientRect();
         this.ctx.canvas.width = width;
         this.ctx.canvas.height = height;
-        this.fitToContainer();
     }
 
     draw() {
+        this.fitToContainer();
         this.updateRange();
         this.updateNormalizer();
         this.elements.forEach(v => v.draw());
@@ -69,8 +70,8 @@ class ChartController implements IDrawable {
     readonly range: { highest: number, lowest: number } = {highest: Number.MAX_VALUE, lowest: Number.MIN_VALUE};
 
     protected updateRange() {
-        const {highest, lowest} = this.elements.reduce((acc, {range}) => {
-            if (!range) return acc;
+        const {highest, lowest} = this.elements.reduce((acc, {range, independentRange}) => {
+            if (!range || independentRange) return acc;
             const {highest, lowest} = range;
             acc.highest = Math.max(acc.highest, highest, lowest);
             acc.lowest = Math.min(acc.lowest, highest, lowest);
