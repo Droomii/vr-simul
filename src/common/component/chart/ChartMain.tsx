@@ -5,9 +5,9 @@ import ChartRoot from "./elements/ChartRoot";
 import ChartController from "./controller/ChartController";
 import XTick from "./elements/XTick";
 import TimeGrid from "./elements/TimeGrid";
-import Line from "./elements/Line";
 import Util from "../../../util/Util";
 import SubController from "./controller/SubController";
+import LineArea from "./elements/LineArea";
 
 const ChartMain = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -27,11 +27,26 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         new XTick(chartCtrl);
         new Candle(chartCtrl);
 
-        const subCtrl = new SubController(chartCtrl, {log: true});
-        new Line(subCtrl, (data) => data.map(v => {
-            const week = Math.floor(Util.getWeek(v.date) / 2);
-            return week * 250;
-        }))
+        const subCtrl = new SubController(chartCtrl, {log: false});
+
+        new LineArea(subCtrl, data => {
+            const firstWeek = Math.floor(Util.getWeek(data[0].date) / 2);
+
+            let stockCount = 0
+            let pool = 0
+            let lastWeek = -1;
+            return data.map(v => {
+                const week = Math.floor(Util.getWeek(v.date) / 2);
+                if (lastWeek !== week) {
+                    pool += 1000;
+                    const buyCount = Math.floor(pool / v.close);
+                    stockCount += buyCount;
+                    pool -= v.close * buyCount;
+                    lastWeek = week;
+                }
+                return {top: stockCount * v.close, bottom: (week - firstWeek + 1) * 1000}
+            })
+        }, {bottomStroke: 'black'})
 
         const {refresh} = root;
 

@@ -89,7 +89,7 @@ class Area extends ChartElement<AreaData> {
     get range(): { lowest: number; highest: number } | null {
         return this.slicedData.reduce((acc, {top, bottom}) => {
             acc.highest = Math.max(acc.highest, top, bottom ?? top);
-            acc.lowest = Math.min(acc.lowest, bottom ?? top);
+            acc.lowest = Math.min(acc.lowest, top, bottom ?? top);
             return acc;
         }, {highest: Number.MIN_VALUE, lowest: Number.MAX_VALUE})
     }
