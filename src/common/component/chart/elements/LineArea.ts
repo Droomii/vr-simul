@@ -23,8 +23,8 @@ class Area extends ChartElement<AreaData> {
     }
 
     constructor(controller: ChartController,
-                mapFunc: (v: IStockHistory, i: number, arr: IStockHistory[]) => AreaData, options?: LineAreaOptions) {
-        super(controller, mapFunc);
+                convertFunc: (data: IStockHistory[]) => AreaData[], options?: LineAreaOptions) {
+        super(controller, convertFunc);
 
         if (options) {
             const {fill, topStroke, bottomStroke} = options;

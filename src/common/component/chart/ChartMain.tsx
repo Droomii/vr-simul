@@ -28,10 +28,10 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         new Candle(chartCtrl);
 
         const subCtrl = new SubController(chartCtrl, {log: true});
-        new Line(subCtrl, (v, i) => {
+        new Line(subCtrl, (data) => data.map(v => {
             const week = Math.floor(Util.getWeek(v.date) / 2);
             return week * 250;
-        })
+        }))
 
         const {refresh} = root;
 

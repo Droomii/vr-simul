@@ -1,7 +1,12 @@
 import ChartElement from "./ChartElement";
 import IStockHistory from "../../../../define/IStockHistory";
+import ChartController from "../controller/ChartController";
 
 class Candle extends ChartElement<IStockHistory> {
+    constructor(controller: ChartController) {
+        super(controller, v => v);
+    }
+
     draw() {
         const {ctx} = this;
         const {normalize} = this.controller;

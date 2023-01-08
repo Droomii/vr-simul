@@ -1,6 +1,11 @@
 import ChartElement from "./ChartElement";
+import ChartController from "../controller/ChartController";
 
 class XTick extends ChartElement {
+    constructor(controller: ChartController) {
+        super(controller, v => v);
+    }
+
     draw(): void {
         const {lowest, highest} = this.controller.range;
         const {normalize, multiplier} = this.controller

@@ -7,13 +7,13 @@ abstract class ChartElement<T = IStockHistory> implements IDrawable {
 
     constructor(
         protected readonly controller: ChartController,
-        protected readonly mapFunc: (v: IStockHistory, i: number, arr: IStockHistory[]) => T = v => v as T) {
+        protected readonly convertFunc: (data: IStockHistory[]) => T[]) {
         controller.register(this);
         this.setData();
     }
 
     setData() {
-        this._data = this.controller.data.map(this.mapFunc);
+        this._data = this.convertFunc(this.controller.data);
     }
 
     protected get data() {

@@ -9,7 +9,7 @@ interface TimeGridOptions {
 
 class TimeGrid extends ChartElement<number> {
     constructor(ctrl: ChartController, options?: TimeGridOptions) {
-        super(ctrl, (({date}) => {
+        super(ctrl, data => data.map(({date}) => {
             const bin = options?.bin ?? 1;
             if (options?.unit === 'month') {
                 return Math.floor(new Date(date).getMonth() / bin) % 2;
