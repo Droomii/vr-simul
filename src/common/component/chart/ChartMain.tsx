@@ -8,6 +8,8 @@ import TimeGrid from "./elements/TimeGrid";
 import Util from "../../../util/Util";
 import SubController from "./controller/SubController";
 import LineArea from "./elements/LineArea";
+import Line from "./elements/Line";
+import IVRHistory from "../../../define/IVRHistory";
 
 const ChartMain = ({root}: { root: ChartRoot }) => {
     const ref = useRef<HTMLCanvasElement>(null);
@@ -23,42 +25,112 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         if (!ctx) return;
         const chartCtrl = new ChartController(root, ctx, {log: true});
 
-        new TimeGrid(chartCtrl, {unit: 'week'});
+        new TimeGrid(chartCtrl, {unit: 'year'});
         new XTick(chartCtrl);
         new Candle(chartCtrl);
 
         const subCtrl = new SubController(chartCtrl, {log: false});
 
-        new LineArea(subCtrl, data => {
-            const firstWeek = Math.floor(Util.getWeek(data[0].date) / 2);
+        const firstCount = Math.floor(5000 / root.data[0].close);
+        const firstValue = firstCount * root.data[0].close;
+        const firstPool = 5000 - firstValue;
 
-            let stockCount = 0
-            let pool = 0
-            let lastWeek = -1;
-            return data.map(v => {
-                const week = Math.floor(Util.getWeek(v.date) / 2);
-                if (lastWeek !== week) {
-                    pool += 250;
-                    const buyCount = Math.floor(pool / v.close);
-                    stockCount += buyCount;
-                    pool -= v.close * buyCount;
-                    lastWeek = week;
+        const firstWeek = Math.floor(Util.getWeek(root.data[0].date) / 2);
+        let lastWeek = 0
+        let lastVR: IVRHistory = {
+            week: lastWeek,
+            savedPool: 0,
+            usablePool: firstPool,
+            stockCount: firstCount,
+            targetValue: firstValue
+        }
+
+        const vrHistory: IVRHistory[] = root.data.map((v, i) => {
+            const week = Math.floor(Util.getWeek(v.date) / 2) - firstWeek;
+            const marketValue = v.close * lastVR.stockCount
+            if (week !== lastWeek) {
+                const totalPool = lastVR.savedPool + lastVR.usablePool;
+                const nextValue = lastVR.targetValue + totalPool / 100 + (marketValue - lastVR.targetValue) / (2 * Math.sqrt(100)) + 250;
+                const newPool = totalPool + 250;
+                const newSavedPool = newPool * Math.min(0.25 + Math.floor(week / 13) * 0.05, 0.9);
+                const newUsablePool = newPool - newSavedPool;
+
+                lastWeek = week;
+                lastVR = {
+                    week: lastWeek,
+                    stockCount: lastVR.stockCount,
+                    targetValue: nextValue,
+                    savedPool: newSavedPool,
+                    usablePool: newUsablePool
                 }
-                return {top: stockCount * v.close, bottom: (week - firstWeek + 1) * 250}
-            })
+            }
+
+            const ceilingValue = lastVR.targetValue * 1.15;
+            const bottomValue = lastVR.targetValue * 0.85;
+
+            const vrToReturn = {...lastVR}
+
+            if (marketValue > ceilingValue) {
+                const overpriced = marketValue - ceilingValue;
+                const overpriceCount = Math.floor(overpriced / v.close);
+                if (i < 200){
+                    console.log(week, overpriced, overpriceCount, v.close)
+                }
+                lastVR.stockCount -= overpriceCount;
+                lastVR.savedPool += overpriceCount * v.close;
+            }
+
+            if (marketValue < bottomValue) {
+                const underpriced = Math.min(bottomValue - marketValue, lastVR.usablePool);
+                const underpriceCount = Math.floor(underpriced / v.close);
+                lastVR.stockCount += underpriceCount;
+                lastVR.usablePool -= underpriceCount * v.close;
+            }
+
+            return {
+                ...lastVR
+            }
         })
 
-        new LineArea(subCtrl, data => {
+        // 원금
+        new Line(subCtrl, data => {
             const firstWeek = Math.floor(Util.getWeek(data[0].date) / 2);
-            const latest = data.at(-1);
-            if (!latest) return data.map(v => ({top: v.close}));
-            const latestWeek = Math.floor(Util.getWeek(latest.date) / 2);
-            const money = (latestWeek - firstWeek) * 250
-            let stockCount = Math.floor(money / latest.close);
             return data.map(v => {
-                return {top: stockCount * v.close, bottom: money}
+                const week = Math.floor(Util.getWeek(v.date) / 2);
+                return 5000 + (week - firstWeek) * 250;
             })
-        }, {topStroke: 'red', fill: 'rgba(255,140,140,0.29)', bottomStroke: 'red'})
+        }).setColor('black')
+
+        // 타겟 v
+        new Line(subCtrl, () => vrHistory.map(v => v.targetValue + v.usablePool + v.savedPool))
+        // 밴드
+        new LineArea(subCtrl, () => vrHistory.map(v => {
+            const totalTarget = v.targetValue + v.usablePool + v.savedPool
+            return ({top: totalTarget * 1.15, bottom: totalTarget * 0.85})
+        }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange'})
+
+        // 주식
+        new LineArea(subCtrl, (data) => {
+            return data.map(({close}, i) => {
+                const vr = vrHistory[i];
+                return {top: vr.usablePool + vr.savedPool + vr.stockCount * close, bottom: vr.usablePool + vr.savedPool};
+            })
+        }, {bottomStroke: 'transparent'})
+
+        // use pool
+        new LineArea(subCtrl, (data) => {
+            return data.map(({close}, i) => {
+                const vr = vrHistory[i];
+                return {top: vr.usablePool + vr.savedPool, bottom: vr.savedPool};
+            })
+        }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(255,213,74,0.27)'})
+        // use pool
+        new LineArea(subCtrl, (data) => {
+            return data.map(({close}, i) => {
+                const vr = vrHistory[i];
+                return {top: vr.savedPool};
+            })
+        }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(74,255,83,0.27)'})
 
         const {refresh} = root;
 
