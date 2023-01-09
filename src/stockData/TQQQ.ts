@@ -6000,6 +6000,8 @@ const data = `Date,Open,High,Low,Close,Adj Close,Volume
 2023-01-05,16.809999,16.850000,16.280001,16.360001,16.360001,181252000
 2023-01-06,16.650000,17.900000,16.100000,17.639999,17.639999,232865800`
 
+// https://query1.finance.yahoo.com/v7/finance/download/TQQQ?period1=1641654604&period2=1673190604&interval=1d&events=history&includeAdjustedClose=true
+
 const split = `Date,Stock Splits
 2000-03-01,3:1
 2001-01-02,1:5
