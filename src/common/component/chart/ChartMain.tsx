@@ -50,7 +50,8 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
             const marketValue = v.close * lastVR.stockCount
             if (week !== lastWeek) {
                 const totalPool = lastVR.savedPool + lastVR.usablePool;
-                const nextValue = lastVR.targetValue + totalPool / 100 + (marketValue - lastVR.targetValue) / (2 * Math.sqrt(100)) + 250;
+                const gradient = 10 + Math.floor(week / 26);
+                const nextValue = lastVR.targetValue + totalPool / gradient + (marketValue - lastVR.targetValue) / (2 * Math.sqrt(gradient)) + 250;
                 const newPool = totalPool + 250;
                 const newSavedPool = newPool * Math.min(0.25 + Math.floor(week / 13) * 0.05, 0.9);
                 const newUsablePool = newPool - newSavedPool;
@@ -65,17 +66,14 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
                 }
             }
 
-            const ceilingValue = lastVR.targetValue * 1.15;
-            const bottomValue = lastVR.targetValue * 0.85;
+            const bandRange = 0.15;
 
-            const vrToReturn = {...lastVR}
+            const ceilingValue = lastVR.targetValue * (1 + bandRange);
+            const bottomValue = lastVR.targetValue * (1 - bandRange);
 
             if (marketValue > ceilingValue) {
                 const overpriced = marketValue - ceilingValue;
                 const overpriceCount = Math.floor(overpriced / v.close);
-                if (i < 200){
-                    console.log(week, overpriced, overpriceCount, v.close)
-                }
                 lastVR.stockCount -= overpriceCount;
                 lastVR.savedPool += overpriceCount * v.close;
             }
@@ -101,13 +99,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
             })
         }).setColor('black')
 
-        // 타겟 v
-        new Line(subCtrl, () => vrHistory.map(v => v.targetValue + v.usablePool + v.savedPool))
-        // 밴드
-        new LineArea(subCtrl, () => vrHistory.map(v => {
-            const totalTarget = v.targetValue + v.usablePool + v.savedPool
-            return ({top: totalTarget * 1.15, bottom: totalTarget * 0.85})
-        }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange'})
+
 
         // 주식
         new LineArea(subCtrl, (data) => {
@@ -124,15 +116,26 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
                 return {top: vr.usablePool + vr.savedPool, bottom: vr.savedPool};
             })
         }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(255,213,74,0.27)'})
-        // use pool
+
+        // inactive pool
         new LineArea(subCtrl, (data) => {
             return data.map(({close}, i) => {
                 const vr = vrHistory[i];
                 return {top: vr.savedPool};
             })
-        }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(74,255,83,0.27)'})
+        }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(0,150,8,0.27)'})
+
+        // 타겟 v
+        new Line(subCtrl, () => vrHistory.map(v => v.targetValue + v.usablePool + v.savedPool))
+        // 밴드
+        new LineArea(subCtrl, () => vrHistory.map(v => {
+            const totalTarget = v.targetValue + v.usablePool + v.savedPool
+            return ({top: totalTarget * 1.15, bottom: totalTarget * 0.85})
+        }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange'})
 
         const {refresh} = root;
+        const lastResult = vrHistory.at(-1)
+        console.log(lastResult && (lastResult.usablePool + lastResult.savedPool + lastResult.stockCount * (root.data.at(-1)?.close ?? 0)))
 
         let isMouseDown = false;
 
