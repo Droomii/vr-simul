@@ -27,7 +27,12 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
 
         new TimeGrid(chartCtrl, {unit: 'year'});
         new XTick(chartCtrl);
-        new Candle(chartCtrl);
+        new Candle(chartCtrl, {
+            riseBoxColor :"rgba(203,104,105,0.47)",
+            riseWickColor: "rgba(229,26,28,0.45)",
+            fallBoxColor :"rgba(15,124,196,0.44)",
+            fallWickColor: "rgba(33,140,211,0.42)",
+        });
 
         const subCtrl = new SubController(chartCtrl, {log: false});
 
@@ -39,6 +44,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         let lastWeek = 0
         let lastVR: IVRHistory = {
             week: lastWeek,
+            usedPool: firstValue,
             savedPool: 0,
             usablePool: firstPool,
             stockCount: firstCount,
@@ -62,7 +68,8 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
                     stockCount: lastVR.stockCount,
                     targetValue: nextValue,
                     savedPool: newSavedPool,
-                    usablePool: newUsablePool
+                    usablePool: newUsablePool,
+                    usedPool: lastVR.usedPool
                 }
             }
 
@@ -74,15 +81,19 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
             if (marketValue > ceilingValue) {
                 const overpriced = marketValue - ceilingValue;
                 const overpriceCount = Math.floor(overpriced / v.close);
+                const sold = overpriceCount * v.close;
                 lastVR.stockCount -= overpriceCount;
-                lastVR.savedPool += overpriceCount * v.close;
+                lastVR.usedPool -= sold;
+                lastVR.savedPool += sold;
             }
 
             if (marketValue < bottomValue) {
                 const underpriced = Math.min(bottomValue - marketValue, lastVR.usablePool);
                 const underpriceCount = Math.floor(underpriced / v.close);
+                const bought = underpriceCount * v.close;
                 lastVR.stockCount += underpriceCount;
-                lastVR.usablePool -= underpriceCount * v.close;
+                lastVR.usablePool -= bought;
+                lastVR.usedPool += bought;
             }
 
             return {
@@ -99,8 +110,6 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
             })
         }).setColor('black')
 
-
-
         // 주식
         new LineArea(subCtrl, (data) => {
             return data.map(({close}, i) => {
@@ -108,6 +117,14 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
                 return {top: vr.usablePool + vr.savedPool + vr.stockCount * close, bottom: vr.usablePool + vr.savedPool};
             })
         }, {bottomStroke: 'transparent'})
+
+/*        // used pool
+        new LineArea(subCtrl, (data) => {
+            return data.map(({close}, i) => {
+                const vr = vrHistory[i];
+                return {top: vr.usablePool + vr.savedPool + vr.usedPool, bottom: vr.savedPool + vr.usablePool};
+            })
+        }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(74,234,255,0.27)'})*/
 
         // use pool
         new LineArea(subCtrl, (data) => {
@@ -126,7 +143,7 @@ const ChartMain = ({root}: { root: ChartRoot }) => {
         }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(0,150,8,0.27)'})
 
         // 타겟 v
-        new Line(subCtrl, () => vrHistory.map(v => v.targetValue + v.usablePool + v.savedPool))
+        new Line(subCtrl, () => vrHistory.map(v => v.targetValue + v.usablePool + v.savedPool), {stroke: '#ff0000'})
         // 밴드
         new LineArea(subCtrl, () => vrHistory.map(v => {
             const totalTarget = v.targetValue + v.usablePool + v.savedPool

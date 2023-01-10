@@ -1,7 +1,22 @@
 import ChartElement from "./ChartElement";
+import ChartController from "../controller/ChartController";
+import IStockHistory from "../../../../define/IStockHistory";
+
+interface LineOptions {
+    stroke?: string;
+}
 
 class Line extends ChartElement<number> {
     private _stroke = 'red';
+
+    constructor(controller: ChartController,
+    convertFunc: (data: IStockHistory[]) => number[], options?: LineOptions) {
+        super(controller, convertFunc)
+
+        if (options) {
+            options.stroke && (this._stroke = options.stroke);
+        }
+    }
 
     setColor(color: string) {
         this._stroke = color;
