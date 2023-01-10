@@ -4,10 +4,12 @@ import IStockHistory from "../../../../define/IStockHistory";
 
 interface LineOptions {
     stroke?: string;
+    square?: boolean;
 }
 
 class Line extends ChartElement<number> {
     private _stroke = 'red';
+    private _isSquare = false;
 
     constructor(controller: ChartController,
     convertFunc: (data: IStockHistory[]) => number[], options?: LineOptions) {
@@ -15,6 +17,7 @@ class Line extends ChartElement<number> {
 
         if (options) {
             options.stroke && (this._stroke = options.stroke);
+            this._isSquare = options?.square ?? false;
         }
     }
 
@@ -32,6 +35,11 @@ class Line extends ChartElement<number> {
         ctx.strokeStyle = this._stroke;
 
         normalizedData.forEach((v, i) => {
+            if (this._isSquare) {
+                ctx.lineTo(i * this.zoom, this.height - v);
+                ctx.lineTo((i + 1) * this.zoom, this.height - v);
+                return;
+            }
             ctx.lineTo((i + 1) * this.zoom - Math.floor((this.zoom / 2)), this.height - v);
         })
 
