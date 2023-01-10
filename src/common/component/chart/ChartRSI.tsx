@@ -1,13 +1,13 @@
 import Util from "../../../util/Util";
 import {useEffect, useRef} from "react";
 import styles from "./ChartMain.module.scss";
-import ChartRoot from "./elements/ChartRoot";
 import RSI from "./elements/RSI";
 import ChartController from "./controller/ChartController";
+import useChartContext from "../../../context/useChartContext";
 
-const ChartRSI = ({root}: { root: ChartRoot }) => {
+const ChartRSI = () => {
     const ref = useRef<HTMLCanvasElement>(null);
-
+    const root = useChartContext();
 
     useEffect(() => {
         const {current: canvas} = ref;

@@ -1,7 +1,6 @@
 import {useEffect, useRef} from "react";
 import styles from './ChartMain.module.scss'
 import Candle from "./elements/Candle";
-import ChartRoot from "./elements/ChartRoot";
 import ChartController from "./controller/ChartController";
 import XTick from "./elements/XTick";
 import TimeGrid from "./elements/TimeGrid";
@@ -10,9 +9,11 @@ import SubController from "./controller/SubController";
 import LineArea from "./elements/LineArea";
 import Line from "./elements/Line";
 import IVRHistory from "../../../define/IVRHistory";
+import useChartContext from "../../../context/useChartContext";
 
-const ChartMain = ({root}: { root: ChartRoot }) => {
+const ChartMain = () => {
     const ref = useRef<HTMLCanvasElement>(null);
+    const root = useChartContext()
     useEffect(() => {
         const {current: canvas} = ref;
         if (!canvas) return;

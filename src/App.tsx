@@ -1,26 +1,26 @@
-import React, {useState} from 'react';
+import React from 'react';
 import './App.css';
 import ChartMain from "./common/component/chart/ChartMain";
 import ChartRSI from "./common/component/chart/ChartRSI";
 import styles from "./App.module.scss";
-import ChartRoot from "./common/component/chart/elements/ChartRoot";
+import ChartContextProvider from "./context/ChartContextProvider";
 
 function App() {
-    const [chartRoot] = useState(new ChartRoot())
-
     return (
         <div className="App">
-            <div className={styles.chartWrap}>
-                <div className={styles.chartMain}>
-                    <ChartMain root={chartRoot}/>
+            <ChartContextProvider>
+                <div className={styles.chartWrap}>
+                    <div className={styles.chartMain}>
+                        <ChartMain/>
+                    </div>
+                    <div className={styles.chartRSI}>
+                        <ChartRSI/>
+                    </div>
                 </div>
-                <div className={styles.chartRSI}>
-                    <ChartRSI root={chartRoot}/>
+                <div className={styles.controlWrap}>
+                    컨토롤
                 </div>
-            </div>
-            <div className={styles.controlWrap}>
-                컨토롤
-            </div>
+            </ChartContextProvider>
         </div>
     );
 }
