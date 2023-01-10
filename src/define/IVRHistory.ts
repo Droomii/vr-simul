@@ -3,7 +3,7 @@ interface IVRHistory {
     savedPool: number;
     usablePool: number;
     stockCount: number;
-    usedPool: number;
+    costBasis: number;
     targetValue: number;
 }
 

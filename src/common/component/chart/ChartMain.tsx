@@ -47,8 +47,8 @@ const ChartMain = () => {
         let lastWeek = 0
         let lastVR: IVRHistory = {
             week: lastWeek,
-            usedPool: firstValue,
             savedPool: 0,
+            costBasis: root.data[0].close,
             usablePool: firstPool,
             stockCount: firstCount,
             targetValue: firstValue
@@ -72,7 +72,7 @@ const ChartMain = () => {
                     targetValue: nextValue,
                     savedPool: newSavedPool,
                     usablePool: newUsablePool,
-                    usedPool: lastVR.usedPool
+                    costBasis: lastVR.costBasis
                 }
             }
 
@@ -85,18 +85,18 @@ const ChartMain = () => {
                 const overpriced = marketValue - ceilingValue;
                 const overpriceCount = Math.floor(overpriced / v.close);
                 const sold = overpriceCount * v.close;
-                lastVR.stockCount -= overpriceCount;
-                lastVR.usedPool -= sold;
+
                 lastVR.savedPool += sold;
+                lastVR.stockCount -= overpriceCount;
             }
 
             if (marketValue < bottomValue) {
                 const underpriced = Math.min(bottomValue - marketValue, lastVR.usablePool);
                 const underpriceCount = Math.floor(underpriced / v.close);
                 const bought = underpriceCount * v.close;
+                lastVR.costBasis = (lastVR.costBasis * lastVR.stockCount + bought) / (lastVR.stockCount + underpriceCount)
                 lastVR.stockCount += underpriceCount;
                 lastVR.usablePool -= bought;
-                lastVR.usedPool += bought;
             }
 
             return {
@@ -109,7 +109,7 @@ const ChartMain = () => {
             const firstWeek = Math.floor(Util.getWeek(data[0].date) / 2);
             return data.map(v => {
                 const week = Math.floor(Util.getWeek(v.date) / 2);
-                return Math.max(50000 + (week - firstWeek) * cycleDeposit, 0);
+                return Math.max(startAsset + (week - firstWeek) * cycleDeposit, 0);
             })
         }, {stroke: 'black', square: true})
 
@@ -144,6 +144,10 @@ const ChartMain = () => {
             const totalTarget = v.targetValue + v.usablePool + v.savedPool
             return ({top: totalTarget * 1.15, bottom: totalTarget * 0.85})
         }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange', square: true})
+
+        // 평단
+        // 타겟 v
+        new Line(subCtrl, (data) => vrHistory.map((v, i) => v.costBasis * v.stockCount + v.usablePool + v.savedPool), {stroke: '#00ff00', square: false})
 
         const {refresh} = root;
         const lastResult = vrHistory.at(-1)
