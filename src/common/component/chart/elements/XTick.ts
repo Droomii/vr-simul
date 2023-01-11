@@ -1,9 +1,21 @@
 import ChartElement from "./ChartElement";
 import ChartController from "../controller/ChartController";
 
+interface XTickOptions {
+    noTick?: boolean;
+    noLabel?: boolean;
+    fontColor?: string;
+}
+
 class XTick extends ChartElement {
-    constructor(controller: ChartController) {
+    private _noTick = false;
+    private _noLabel = false;
+    private _fontColor = '#9b9b9b';
+    constructor(controller: ChartController, options?: XTickOptions) {
         super(controller, v => v);
+        this._noTick = options?.noTick ?? false;
+        this._noLabel = options?.noLabel ?? false;
+        this._fontColor = options?.fontColor ?? this._fontColor;
     }
 
     draw(): void {
@@ -14,6 +26,7 @@ class XTick extends ChartElement {
         const diff = highestLog - lowestLog
 
         const logTick = diff / 10;
+
         const ticks = Array(10).fill(0).map((v, i) => {
             if (this.isLog) {
                 return Math.floor(2 ** (lowestLog + i * logTick) * 100) / 100;
@@ -22,12 +35,18 @@ class XTick extends ChartElement {
         });
         const {ctx} = this;
         ctx.textAlign = 'right'
+        ctx.font = '12px arial'
         ticks.forEach(y => {
             const normalized = normalize(y)
-            ctx.fillStyle = '#efefef';
-            ctx.fillRect(0, this.height - normalized, this.width, 1)
-            ctx.fillStyle = '#b7b7b7';
-            ctx.fillText(String(y), this.width, this.height - normalized - 4)
+            if (!this._noTick) {
+                ctx.fillStyle = '#efefef';
+                ctx.fillRect(0, this.height - normalized, this.width, 1)
+            }
+
+            if (!this._noLabel) {
+                ctx.fillStyle = this._fontColor;
+                ctx.fillText(y.toLocaleString(), this.width, this.height - normalized - 4)
+            }
         })
     }
 

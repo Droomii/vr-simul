@@ -136,6 +136,15 @@ class ChartController implements IDrawable {
         this.root.unregister(this);
     }
 
+    getMousePosData({x, y}: {x: number, y: number}): {x: number; y: number; index: number; price: number;} {
+        const {lowest, highest} = this.range;
+        return {
+            x: Math.ceil(x / this.zoom) * this.zoom - Math.floor(this.zoom / 2),
+            y,
+            index: Math.max(Math.min(Math.floor(x / this.zoom) + this.offset, this.data.length), 0),
+            price: lowest * 0.9 + (highest / 0.9 - lowest * 0.9) * (1 - y / this.height),
+        }
+    }
 }
 
 export default ChartController

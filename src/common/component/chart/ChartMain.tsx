@@ -1,4 +1,4 @@
-import {useEffect, useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 import styles from './ChartMain.module.scss'
 import Candle from "./elements/Candle";
 import ChartController from "./controller/ChartController";
@@ -14,9 +14,11 @@ import useChartContext from "../../../context/useChartContext";
 const ChartMain = () => {
     const ref = useRef<HTMLCanvasElement>(null);
     const root = useChartContext()
+    const [mousePosData, setMousePosData] = useState<{x: number, y: number, index: number, price: number} | null>(null);
     useEffect(() => {
         const {current: canvas} = ref;
         if (!canvas) return;
+
 
         const wrapper = canvas.parentElement;
         if (!wrapper) return;
@@ -145,13 +147,7 @@ const ChartMain = () => {
             return ({top: totalTarget * 1.15, bottom: totalTarget * 0.85})
         }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange', square: true})
 
-        // 평단
-        // 타겟 v
-        new Line(subCtrl, (data) => vrHistory.map((v, i) => v.costBasis * v.stockCount + v.usablePool + v.savedPool), {stroke: '#00ff00', square: false})
-
         const {refresh} = root;
-        const lastResult = vrHistory.at(-1)
-        console.log(lastResult && (lastResult.usablePool + lastResult.savedPool + lastResult.stockCount * (root.data.at(-1)?.close ?? 0)))
 
         let isMouseDown = false;
 
@@ -222,11 +218,25 @@ const ChartMain = () => {
         canvas.addEventListener('mousedown', mouseDownHandler)
 
         window.addEventListener('resize', refresh);
+
+        let moveThrottle = false;
+        const handleMouseMove = (e: MouseEvent) => {
+            if (moveThrottle) return;
+            moveThrottle = true;
+            const {x, y} = canvas.getBoundingClientRect();
+            setMousePosData(subCtrl.getMousePosData({x: e.x - x, y: e.y - y}));
+            requestAnimationFrame(() => moveThrottle = false)
+        }
+
+        canvas.addEventListener('mousemove', handleMouseMove)
+
+
         chartCtrl.refresh();
         return () => {
             window.removeEventListener('resize', refresh);
             canvas.removeEventListener('mousedown', mouseDownHandler)
             canvas.removeEventListener('wheel', wheelHandler)
+            canvas.removeEventListener('mousemove', handleMouseMove)
             chartCtrl.destroy();
         }
     }, [root])
@@ -234,6 +244,12 @@ const ChartMain = () => {
 
     return <div className={styles.wrapper}>
         <canvas ref={ref}/>
+        {mousePosData && <>
+        <div className={styles.xLine} style={{top: 0, left: mousePosData.x }}/>
+            <div className={styles.yLine} style={{top: mousePosData.y, left: 0}}>
+                <div>${Util.dropDecimal(mousePosData.price, 2).toLocaleString()}</div>
+            </div>
+        </>}
     </div>
 }
 
