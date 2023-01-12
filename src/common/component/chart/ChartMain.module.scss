@@ -14,6 +14,10 @@
     position: absolute;
     height: 100%;
     border-left: 1px solid black;
+
+    > div {
+      white-space: nowrap;
+    }
   }
 
   > .yLine {

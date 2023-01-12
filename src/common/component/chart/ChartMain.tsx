@@ -14,7 +14,7 @@ import useChartContext from "../../../context/useChartContext";
 const ChartMain = () => {
     const ref = useRef<HTMLCanvasElement>(null);
     const root = useChartContext()
-    const [mousePosData, setMousePosData] = useState<{x: number, y: number, index: number, price: number} | null>(null);
+    const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number } | null>(null);
     useEffect(() => {
         const {current: canvas} = ref;
         if (!canvas) return;
@@ -31,9 +31,9 @@ const ChartMain = () => {
         new TimeGrid(chartCtrl, {unit: 'year'});
         new XTick(chartCtrl);
         new Candle(chartCtrl, {
-            riseBoxColor :"rgba(203,104,105,0.47)",
+            riseBoxColor: "rgba(203,104,105,0.47)",
             riseWickColor: "rgba(229,26,28,0.45)",
-            fallBoxColor :"rgba(15,124,196,0.44)",
+            fallBoxColor: "rgba(15,124,196,0.44)",
             fallWickColor: "rgba(33,140,211,0.42)",
         });
 
@@ -119,7 +119,10 @@ const ChartMain = () => {
         new LineArea(subCtrl, (data) => {
             return data.map(({close}, i) => {
                 const vr = vrHistory[i];
-                return {top: vr.usablePool + vr.savedPool + vr.stockCount * close, bottom: vr.usablePool + vr.savedPool};
+                return {
+                    top: vr.usablePool + vr.savedPool + vr.stockCount * close,
+                    bottom: vr.usablePool + vr.savedPool
+                };
             })
         }, {bottomStroke: 'transparent'})
 
@@ -140,7 +143,10 @@ const ChartMain = () => {
         }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(0,150,8,0.27)'})
 
         // 타겟 v
-        new Line(subCtrl, () => vrHistory.map(v => v.targetValue + v.usablePool + v.savedPool), {stroke: '#ff0000', square: true})
+        new Line(subCtrl, () => vrHistory.map(v => v.targetValue + v.usablePool + v.savedPool), {
+            stroke: '#ff0000',
+            square: true
+        })
         // 밴드
         new LineArea(subCtrl, () => vrHistory.map(v => {
             const totalTarget = v.targetValue + v.usablePool + v.savedPool
@@ -244,8 +250,10 @@ const ChartMain = () => {
 
     return <div className={styles.wrapper}>
         <canvas ref={ref}/>
-        {mousePosData && <>
-        <div className={styles.xLine} style={{top: 0, left: mousePosData.x }}/>
+        {mousePosData && root.data[mousePosData.index] && <>
+            <div className={styles.xLine} style={{top: 0, left: mousePosData.x}}>
+                <div>{new Date(root.data[mousePosData.index].date).toISOString().substring(0, 10)}</div>
+            </div>
             <div className={styles.yLine} style={{top: mousePosData.y, left: 0}}>
                 <div>${Util.dropDecimal(mousePosData.price, 2).toLocaleString()}</div>
             </div>
