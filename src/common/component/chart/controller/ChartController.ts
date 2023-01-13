@@ -106,7 +106,7 @@ class ChartController implements IDrawable {
         return (val: number, inertia?: boolean) => {
             const newOffset = Math.min(Math.max(originalOffset + Math.floor(val / this.zoom), 0), this.data.length - this.visibleDataCount);
             if (newOffset < 0 && inertia) return true;
-            if (lastOffset === newOffset) return false;
+            if (lastOffset === newOffset) return !!inertia;
             this.offset = newOffset;
             lastOffset = newOffset;
             return !inertia;
@@ -136,7 +136,7 @@ class ChartController implements IDrawable {
         this.root.unregister(this);
     }
 
-    getMousePosData({x, y}: {x: number, y: number}): {x: number; y: number; index: number; price: number;} {
+    getMousePosData({x, y}: { x: number, y: number }): { x: number; y: number; index: number; price: number; } {
         const {lowest, highest} = this.range;
         return {
             x: Math.ceil(x / this.zoom) * this.zoom - Math.floor(this.zoom / 2),
