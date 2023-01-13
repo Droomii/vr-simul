@@ -194,10 +194,15 @@ const ChartMain = () => {
 
             canvas.addEventListener('mousemove', moveHandler);
             window.addEventListener('mouseup', () => {
+                canvas.removeEventListener('mousemove', crossHandler);
+                canvas.addEventListener('mousemove', crossHandler);
+
                 isMouseDown = false;
                 canvas.removeEventListener('mousemove', moveHandler)
                 let stop = false;
                 window.addEventListener('mousedown', () => {
+                    canvas.removeEventListener('mousemove', crossHandler);
+                    setMousePosData(null);
                     stop = true;
                 }, {once: true})
 
@@ -226,7 +231,7 @@ const ChartMain = () => {
         window.addEventListener('resize', refresh);
 
         let moveThrottle = false;
-        const handleMouseMove = (e: MouseEvent) => {
+        const crossHandler = (e: MouseEvent) => {
             if (moveThrottle) return;
             moveThrottle = true;
             const {x, y} = canvas.getBoundingClientRect();
@@ -234,7 +239,7 @@ const ChartMain = () => {
             requestAnimationFrame(() => moveThrottle = false)
         }
 
-        canvas.addEventListener('mousemove', handleMouseMove)
+        canvas.addEventListener('mousemove', crossHandler)
 
 
         chartCtrl.refresh();
@@ -242,7 +247,7 @@ const ChartMain = () => {
             window.removeEventListener('resize', refresh);
             canvas.removeEventListener('mousedown', mouseDownHandler)
             canvas.removeEventListener('wheel', wheelHandler)
-            canvas.removeEventListener('mousemove', handleMouseMove)
+            canvas.removeEventListener('mousemove', crossHandler)
             chartCtrl.destroy();
         }
     }, [root])
