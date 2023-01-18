@@ -14,7 +14,7 @@ import useChartContext from "../../../context/useChartContext";
 const ChartMain = () => {
     const ref = useRef<HTMLCanvasElement>(null);
     const root = useChartContext()
-    const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number } | null>(null);
+    const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: IVRHistory } | null>(null);
     useEffect(() => {
         const {current: canvas} = ref;
         if (!canvas) return;
@@ -44,6 +44,7 @@ const ChartMain = () => {
         const firstValue = firstCount * root.data[0].close;
         const firstPool = startAsset - firstValue;
         const cycleDeposit = 250;
+        const weekCycleUnit = 2;
 
         const firstWeek = Math.floor(Util.getWeek(root.data[0].date) / 2);
         let lastWeek = 0
@@ -53,28 +54,29 @@ const ChartMain = () => {
             costBasis: root.data[0].close,
             usablePool: firstPool,
             stockCount: firstCount,
-            targetValue: firstValue
+            targetValue: firstValue,
+            totalDeposit: startAsset
         }
 
         const vrHistory: IVRHistory[] = root.data.map((v, i) => {
-            const week = Math.floor(Util.getWeek(v.date) / 2) - firstWeek;
+            const week = Math.floor(Util.getWeek(v.date) / weekCycleUnit) - firstWeek;
             const marketValue = v.close * lastVR.stockCount
             if (week !== lastWeek) {
                 const totalPool = lastVR.savedPool + lastVR.usablePool;
-                const gradient = 10 + Math.floor(week / 26);
+                const gradient = 10 + Math.floor(week / (52 / weekCycleUnit));
                 const newPool = Math.max(totalPool + cycleDeposit, 0);
                 const nextValue = Math.max(lastVR.targetValue + totalPool / gradient + (marketValue - lastVR.targetValue) / (2 * Math.sqrt(gradient)) + cycleDeposit, 0);
                 const newSavedPool = newPool * Math.min(0.25 + Math.floor(week / 13) * 0.05, 0.9);
                 const newUsablePool = newPool - newSavedPool;
+                lastVR.totalDeposit = Math.max(lastVR.totalDeposit + cycleDeposit, 0)
 
                 lastWeek = week;
                 lastVR = {
+                    ...lastVR,
                     week: lastWeek,
-                    stockCount: lastVR.stockCount,
                     targetValue: nextValue,
                     savedPool: newSavedPool,
                     usablePool: newUsablePool,
-                    costBasis: lastVR.costBasis
                 }
             }
 
@@ -108,11 +110,7 @@ const ChartMain = () => {
 
         // 원금
         new Line(subCtrl, data => {
-            const firstWeek = Math.floor(Util.getWeek(data[0].date) / 2);
-            return data.map(v => {
-                const week = Math.floor(Util.getWeek(v.date) / 2);
-                return Math.max(startAsset + (week - firstWeek) * cycleDeposit, 0);
-            })
+            return data.map((v, i) => vrHistory[i].totalDeposit)
         }, {stroke: 'black', square: true})
 
         // 주식
@@ -235,7 +233,9 @@ const ChartMain = () => {
             if (moveThrottle) return;
             moveThrottle = true;
             const {x, y} = canvas.getBoundingClientRect();
-            setMousePosData(subCtrl.getMousePosData({x: e.x - x, y: e.y - y}));
+            const posData = subCtrl.getMousePosData({x: e.x - x, y: e.y - y});
+
+            setMousePosData({...posData, vrData: vrHistory[posData.index]});
             requestAnimationFrame(() => moveThrottle = false)
         }
 
@@ -258,6 +258,8 @@ const ChartMain = () => {
         {mousePosData && root.data[mousePosData.index] && <>
             <div className={styles.xLine} style={{top: 0, left: mousePosData.x}}>
                 <div>{new Date(root.data[mousePosData.index].date).toISOString().substring(0, 10)}</div>
+                <div>원금: {mousePosData.vrData.totalDeposit}</div>
+                <div>Pool: ${Util.dropDecimal(mousePosData.vrData.savedPool + mousePosData.vrData.usablePool, 2).toLocaleString()}</div>
             </div>
             <div className={styles.yLine} style={{top: mousePosData.y, left: 0}}>
                 <div>${Util.dropDecimal(mousePosData.price, 2).toLocaleString()}</div>
