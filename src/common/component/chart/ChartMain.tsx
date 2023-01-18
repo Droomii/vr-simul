@@ -14,11 +14,16 @@ import useChartContext from "../../../context/useChartContext";
 const ChartMain = () => {
     const ref = useRef<HTMLCanvasElement>(null);
     const root = useChartContext()
+    const [isLoaded, setIsLoaded] = useState(false);
     const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: IVRHistory } | null>(null);
     useEffect(() => {
+        if (!isLoaded) {
+            root.loadData('TQQQ').then(() => setIsLoaded(true));
+            return;
+        }
+
         const {current: canvas} = ref;
         if (!canvas) return;
-
 
         const wrapper = canvas.parentElement;
         if (!wrapper) return;
@@ -26,6 +31,7 @@ const ChartMain = () => {
         // get the context for the canvas
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
+
         const chartCtrl = new ChartController(root, ctx, {log: true});
 
         new TimeGrid(chartCtrl, {unit: 'year'});
@@ -250,7 +256,7 @@ const ChartMain = () => {
             canvas.removeEventListener('mousemove', crossHandler)
             chartCtrl.destroy();
         }
-    }, [root])
+    }, [isLoaded])
 
 
     return <div className={styles.wrapper}>
