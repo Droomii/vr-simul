@@ -13,7 +13,7 @@ import useChartContext from "../../../context/useChartContext";
 
 const ChartMain = () => {
     const ref = useRef<HTMLCanvasElement>(null);
-    const root = useChartContext()
+    const {root, settings} = useChartContext();
     const [isLoaded, setIsLoaded] = useState(false);
     const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: IVRHistory } | null>(null);
     useEffect(() => {
@@ -45,12 +45,10 @@ const ChartMain = () => {
 
         const subCtrl = new SubController(chartCtrl, {log: false});
 
-        const startAsset = 5000
+        const startAsset = settings.startAsset;
         const firstCount = Math.floor(startAsset / root.data[0].close);
         const firstValue = firstCount * root.data[0].close;
         const firstPool = startAsset - firstValue;
-        const cycleDeposit = 250;
-        const weekCycleUnit = 2;
 
         const firstWeek = Math.floor(Util.getWeek(root.data[0].date) / 2);
         let lastWeek = 0
@@ -65,16 +63,16 @@ const ChartMain = () => {
         }
 
         const vrHistory: IVRHistory[] = root.data.map((v, i) => {
-            const week = Math.floor(Util.getWeek(v.date) / weekCycleUnit) - firstWeek;
+            const week = Math.floor(Util.getWeek(v.date) / settings.weekCycleUnit) - firstWeek;
             const marketValue = v.close * lastVR.stockCount
             if (week !== lastWeek) {
                 const totalPool = lastVR.savedPool + lastVR.usablePool;
-                const gradient = 10 + Math.floor(week / (52 / weekCycleUnit));
-                const newPool = Math.max(totalPool + cycleDeposit, 0);
-                const nextValue = Math.max(lastVR.targetValue + totalPool / gradient + (marketValue - lastVR.targetValue) / (2 * Math.sqrt(gradient)) + cycleDeposit, 0);
-                const newSavedPool = newPool * Math.min(0.25 + Math.floor(week / 13) * 0.05, 0.9);
+                const gradient = settings.getGradient(week);
+                const newPool = Math.max(totalPool + settings.getCycleDeposit(week), 0);
+                const nextValue = Math.max(lastVR.targetValue + totalPool / gradient + (marketValue - lastVR.targetValue) / (2 * Math.sqrt(gradient)) + settings.getCycleDeposit(week), 0);
+                const newSavedPool = newPool * settings.getPoolLimit(week);
                 const newUsablePool = newPool - newSavedPool;
-                lastVR.totalDeposit = Math.max(lastVR.totalDeposit + cycleDeposit, 0)
+                lastVR.totalDeposit = Math.max(lastVR.totalDeposit + settings.getCycleDeposit(week), 0)
 
                 lastWeek = week;
                 lastVR = {

@@ -7,7 +7,7 @@ import useChartContext from "../../../context/useChartContext";
 
 const ChartRSI = () => {
     const ref = useRef<HTMLCanvasElement>(null);
-    const root = useChartContext();
+    const {root} = useChartContext();
 
     useEffect(() => {
         const {current: canvas} = ref;
