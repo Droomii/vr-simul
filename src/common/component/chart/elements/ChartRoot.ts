@@ -12,7 +12,6 @@ class ChartRoot {
     async loadData(ticker: string) {
         const dataFetch = fetch(`/data/${ticker}.csv`).then(v => v.text());
         const splitFetch = fetch(`/data/${ticker}_split.csv`).then(v => v.text());
-        await Promise.all([dataFetch, splitFetch])
         this._data = Util.parseData(await dataFetch, await splitFetch);
     }
 
