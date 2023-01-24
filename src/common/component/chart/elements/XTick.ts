@@ -11,6 +11,7 @@ class XTick extends ChartElement {
     private _noTick = false;
     private _noLabel = false;
     private _fontColor = '#9b9b9b';
+
     constructor(controller: ChartController, options?: XTickOptions) {
         super(controller, v => v);
         this._noTick = options?.noTick ?? false;
@@ -45,7 +46,7 @@ class XTick extends ChartElement {
 
             if (!this._noLabel) {
                 ctx.fillStyle = this._fontColor;
-                ctx.fillText(y.toLocaleString(), this.width, this.height - normalized - 4)
+                ctx.fillText(((this.slicedData.at(-1)?.ratio ?? 1) * y).toLocaleString(), this.width, this.height - normalized - 4)
             }
         })
     }
