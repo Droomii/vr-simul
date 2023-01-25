@@ -3,6 +3,7 @@ import './App.css';
 import ChartMain from "./common/component/chart/ChartMain";
 import styles from "./App.module.scss";
 import ChartContextProvider from "./context/ChartContextProvider";
+import ChartSettings from "./common/component/settings/ChartSettings";
 
 function App() {
     return (
@@ -13,9 +14,7 @@ function App() {
                         <ChartMain/>
                     </div>
                 </div>
-                <div className={styles.controlWrap}>
-                    컨토롤
-                </div>
+                <ChartSettings/>
             </ChartContextProvider>
         </div>
     );

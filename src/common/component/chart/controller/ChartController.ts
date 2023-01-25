@@ -28,6 +28,8 @@ class ChartController implements IDrawable {
 
     refresh() {
         this.clear();
+        this.zoom = Math.min(Math.max(this.width / this.data.length, this.zoom), this.width);
+        this.offset = Math.max(0, Math.min(this.offset, this.data.length - this.visibleDataCount))
         this.draw();
     }
 

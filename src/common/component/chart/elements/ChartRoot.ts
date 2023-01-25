@@ -7,20 +7,63 @@ class ChartRoot {
     offset = 0;
     controllers: Set<ChartController> = new Set();
     private _data: IStockHistory[] = [];
-    startDate = '2021-04-16';
+    private _startDate = '2000-01-01';
+    private _endDate = new Date().toISOString().substring(0, 10);
+    private _slicedData: IStockHistory[] = [];
 
     async loadData(ticker: string) {
         const dataFetch = fetch(`/data/${ticker}.csv`).then(v => v.text());
         const splitFetch = fetch(`/data/${ticker}_split.csv`).then(v => v.text());
         this._data = Util.parseData(await dataFetch, await splitFetch);
+        this.updateSlice();
+    }
+
+    private updateSlice() {
+        this._slicedData = this._data.slice(this._data.findIndex(v => v.date >= this.startTime))
+        const endIdx = this._slicedData.findIndex(v => v.date >= this.endTime);
+        if (endIdx > -1) {
+            this._slicedData = this._slicedData.slice(0, endIdx + 1);
+        }
     }
 
     register(controller: ChartController) {
         this.controllers.add(controller);
     }
 
+    get startDate(): string {
+        return this._startDate;
+    }
+
+    get startTime(): number {
+     return new Date(this.startDate).getTime();
+    }
+
+    set startDate(value: string) {
+        this._startDate = value;
+        this.offset = 0;
+        this.zoom = 0;
+        this.updateSlice();
+        this.refresh();
+    }
+
+    get endDate(): string {
+        return this._endDate;
+    }
+
+    get endTime(): number {
+        return new Date(this.endDate).getTime();
+    }
+
+    set endDate(value: string) {
+        this._endDate = value;
+        this.offset = 0;
+        this.zoom = 0;
+        this.updateSlice();
+        this.refresh();
+    }
+
     get data() {
-        return this._data.slice(this._data.findIndex(v => v.date >= new Date(this.startDate).getTime()))
+        return this._slicedData;
     }
 
     unregister(controller: ChartController) {
