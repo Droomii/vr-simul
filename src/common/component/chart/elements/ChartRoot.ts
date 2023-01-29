@@ -10,12 +10,15 @@ class ChartRoot {
     private _startDate = '2000-01-01';
     private _endDate = new Date().toISOString().substring(0, 10);
     private _slicedData: IStockHistory[] = [];
-
-    async loadData(ticker: string) {
+    private _cleanup: (() => void) | null = null;
+    async loadData(ticker: string, callback: () => (() => void)) {
+        this.zoom = 0;
+        this.offset = 0;
         const dataFetch = fetch(`/data/${ticker}.csv`).then(v => v.text());
         const splitFetch = fetch(`/data/${ticker}_split.csv`).then(v => v.text());
         this._data = Util.parseData(await dataFetch, await splitFetch);
         this.updateSlice();
+        this._cleanup = callback();
     }
 
     private updateSlice() {
@@ -40,10 +43,6 @@ class ChartRoot {
 
     set startDate(value: string) {
         this._startDate = value;
-        this.offset = 0;
-        this.zoom = 0;
-        this.updateSlice();
-        this.refresh();
     }
 
     get endDate(): string {
@@ -56,10 +55,6 @@ class ChartRoot {
 
     set endDate(value: string) {
         this._endDate = value;
-        this.offset = 0;
-        this.zoom = 0;
-        this.updateSlice();
-        this.refresh();
     }
 
     get data() {
@@ -71,9 +66,12 @@ class ChartRoot {
     }
 
     readonly refresh = () => {
-        this.controllers.forEach(v => {
-            v.refresh();
-        });
+        this.controllers.forEach(v => v.refresh());
+    }
+
+    cleanup = () => {
+        this.controllers.forEach(v => v.destroy());
+        this._cleanup?.();
     }
 }
 

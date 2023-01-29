@@ -3,13 +3,15 @@ import React from "react";
 import useChartContext from "../../../context/useChartContext";
 
 const ChartSettings = () => {
-    const {root} = useChartContext();
+    const {state: {root}, setSettings} = useChartContext();
     const handleChangeStartDate = ({currentTarget: {value}}: {currentTarget: {value: string}}) => {
         root.startDate = value;
+        setSettings({})
     }
 
     const handleChangeEndDate = ({currentTarget: {value}}: {currentTarget: {value: string}}) => {
         root.endDate = value;
+        setSettings({})
     }
 
     return <div className={styles.controlWrap}>
