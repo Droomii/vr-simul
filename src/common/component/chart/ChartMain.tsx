@@ -26,6 +26,8 @@ const ChartMain = () => {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
+        root.startDate = settings.startDate;
+        root.endDate = settings.endDate;
         root.loadData('TQQQ', () => {
             const chartCtrl = new ChartController(root, ctx, {log: true});
 
@@ -62,10 +64,10 @@ const ChartMain = () => {
                 const marketValue = v.close * lastVR.stockCount
                 if (week !== lastWeek) {
                     const totalPool = lastVR.savedPool + lastVR.usablePool;
-                    const gradient = settings.getGradient(week);
+                    const gradient = settings.getGradient(week * settings.weekCycleUnit);
                     const newPool = Math.max(totalPool + settings.getCycleDeposit(week), 0);
                     const nextValue = Math.max(lastVR.targetValue + totalPool / gradient + (marketValue - lastVR.targetValue) / (2 * Math.sqrt(gradient)) + settings.getCycleDeposit(week), 0);
-                    const newSavedPool = newPool * settings.getPoolLimit(week);
+                    const newSavedPool = newPool * (1 - settings.getPoolLimit(week * settings.weekCycleUnit));
                     const newUsablePool = newPool - newSavedPool;
                     lastVR.totalDeposit = Math.max(lastVR.totalDeposit + settings.getCycleDeposit(week), 0)
 
@@ -135,7 +137,7 @@ const ChartMain = () => {
             new LineArea(subCtrl, (data) => {
                 return data.map(({close}, i) => {
                     const vr = vrHistory[i];
-                    return {top: vr.savedPool};
+                    return {top: vr.savedPool, bottom: 0};
                 })
             }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(0,150,8,0.27)'})
 

@@ -1,4 +1,6 @@
 interface IVRSettings {
+    startDate: string;
+    endDate: string;
     startAsset: number;
     weekCycleUnit: number;
     getCycleDeposit(week: number): number;

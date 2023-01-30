@@ -15,16 +15,18 @@ const defaultValue: IContext = {
     state: {
         root: new ChartRoot(),
         settings: {
+            startDate: '2000-01-01',
+            endDate: new Date().toISOString().substring(0, 10),
             startAsset: 5000,
             weekCycleUnit: 2,
             getCycleDeposit() {
                 return 250
             },
             getGradient(week) {
-                return 10 + Math.floor(week / (52 / this.weekCycleUnit));
+                return 10 + Math.floor(week / 52);
             },
             getPoolLimit(week) {
-                return Math.min(0.25 + Math.floor(week / (52 / this.weekCycleUnit)) * 0.05, 0.9)
+                return 1 - Math.min(0.25 + Math.floor(week / 26) * 0.05, 0.9)
             }
         }
     }, setSettings: () => {

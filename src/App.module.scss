@@ -19,4 +19,7 @@
 .controlWrap {
   width: 320px;
   padding-top: 64px;
+  > div {
+    margin-top: 24px;
+  }
 }
