@@ -31,4 +31,14 @@
       bottom: 4px;
     }
   }
+
+  > .label {
+    border: 1px solid lightgray;
+    white-space: nowrap;
+    border-radius: 8px;
+    padding: 12px;
+    background: white;
+    position: absolute;
+    pointer-events: none;
+  }
 }

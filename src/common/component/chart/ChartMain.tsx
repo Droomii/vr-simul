@@ -260,13 +260,15 @@ const ChartMain = () => {
         <canvas ref={ref}/>
         {mousePosData && root.data[mousePosData.index] && <>
             <div className={styles.xLine} style={{top: 0, left: mousePosData.x}}>
+            </div>
+            <div className={styles.yLine} style={{top: mousePosData.y, left: 0}}>
+                <div>${Util.dropDecimal(mousePosData.price, 2).toLocaleString()}</div>
+            </div>
+            <div className={styles.label} style={{top: mousePosData.y + 10, left: mousePosData.x + 10}}>
                 <div>{new Date(root.data[mousePosData.index].date).toISOString().substring(0, 10)}</div>
                 <div>원금: {mousePosData.vrData.totalDeposit}</div>
                 <div>Pool:
                     ${Util.dropDecimal(mousePosData.vrData.savedPool + mousePosData.vrData.usablePool, 2).toLocaleString()}</div>
-            </div>
-            <div className={styles.yLine} style={{top: mousePosData.y, left: 0}}>
-                <div>${Util.dropDecimal(mousePosData.price, 2).toLocaleString()}</div>
             </div>
         </>}
     </div>
