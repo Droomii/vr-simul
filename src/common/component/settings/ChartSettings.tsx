@@ -46,6 +46,7 @@ const ChartSettings = () => {
         const poolLimit = Number(poolLimitRef.current?.value);
         const poolDecrease = Number(poolDecreaseRef.current?.value);
         const poolMinLimit = Number(poolMinLimitRef.current?.value);
+        const gradient = Number(gradientRef.current?.value);
         const gradientWeek = Number(gradientWeekRef.current?.value);
         const gradientIncrease = Number(gradientIncreaseRef.current?.value);
         const cycleDeposit = Number(cycleDepositRef.current?.value);
@@ -58,7 +59,7 @@ const ChartSettings = () => {
                 return 1 - Math.min((100 - poolLimit) / 100 + Math.floor(week / poolLimitWeek) * (poolDecrease / 100), 1 - poolMinLimit / 100)
             },
             getGradient(week: number): number {
-                return 10 + Math.floor(week / gradientWeek) * gradientIncrease;
+                return gradient + Math.floor(week / gradientWeek) * gradientIncrease;
             },
             getCycleDeposit(): number {
                 return cycleDeposit;
@@ -95,8 +96,9 @@ const ChartSettings = () => {
             <br/><span>└ 최소 <input type={'number'} ref={poolMinLimitRef} min={0} max={100} onBlur={handleChangeInteger}
                                    defaultValue={10} style={{width: 40}} step={1}/>%</span>
         </div>
-
+        <div>
         <button type={'button'} onClick={handleSubmit}>적용</button>
+        </div>
     </div>
 }
 

@@ -253,7 +253,10 @@ const ChartMain = () => {
                 requestAnimationFrame(() => moveThrottle = false)
             }
 
+            const mouseOutHandler = () => setMousePosData(null);
+
             canvas.addEventListener('mousemove', crossHandler)
+            canvas.addEventListener('mouseout', mouseOutHandler)
 
 
             chartCtrl.refresh();
@@ -262,6 +265,7 @@ const ChartMain = () => {
                 canvas.removeEventListener('mousedown', mouseDownHandler)
                 canvas.removeEventListener('wheel', wheelHandler)
                 canvas.removeEventListener('mousemove', crossHandler)
+                canvas.removeEventListener('mouseout', mouseOutHandler)
             }
         });
 
