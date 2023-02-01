@@ -40,5 +40,9 @@
     background: white;
     position: absolute;
     pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 8px 7px 20px 0px #00000036;
   }
 }

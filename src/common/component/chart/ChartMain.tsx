@@ -10,11 +10,12 @@ import LineArea from "./elements/LineArea";
 import Line from "./elements/Line";
 import IVRHistory from "../../../define/IVRHistory";
 import useChartContext from "../../../context/useChartContext";
+import IStockHistory from "../../../define/IStockHistory";
 
 const ChartMain = () => {
     const ref = useRef<HTMLCanvasElement>(null);
     const {state: {root, settings}} = useChartContext();
-    const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: IVRHistory } | null>(null);
+    const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: IVRHistory, stockData: IStockHistory } | null>(null);
     useEffect(() => {
         const {current: canvas} = ref;
         if (!canvas) return;
@@ -43,8 +44,8 @@ const ChartMain = () => {
             const subCtrl = new SubController(chartCtrl, {log: false});
 
             const startAsset = settings.startAsset;
-            const firstCount = Math.floor(startAsset / root.data[0].close);
-            const firstValue = firstCount * root.data[0].close;
+            const firstCount = Math.floor(startAsset / (root.data[0].close * root.data[0].ratio));
+            const firstValue = firstCount * root.data[0].close * root.data[0].ratio;
             const firstPool = startAsset - firstValue;
 
             const firstWeek = Math.floor(Util.getWeek(root.data[0].date) / 2);
@@ -52,16 +53,22 @@ const ChartMain = () => {
             let lastVR: IVRHistory = {
                 week: lastWeek,
                 savedPool: 0,
-                costBasis: root.data[0].close,
+                costBasis: root.data[0].close * root.data[0].ratio,
                 usablePool: firstPool,
                 stockCount: firstCount,
                 targetValue: firstValue,
-                totalDeposit: startAsset
+                totalDeposit: startAsset,
+                poolDiff: 0,
+                countDiff: 0
             }
 
             const vrHistory: IVRHistory[] = root.data.map((v, i) => {
                 const week = Math.floor(Util.getWeek(v.date) / settings.weekCycleUnit) - firstWeek;
-                const marketValue = v.close * lastVR.stockCount
+                if (v.split) {
+                    lastVR.costBasis /= v.split;
+                    lastVR.stockCount *= v.split;
+                }
+                const marketValue = v.close * v.ratio * lastVR.stockCount
                 if (week !== lastWeek) {
                     const totalPool = lastVR.savedPool + lastVR.usablePool;
                     const gradient = settings.getGradient(week * settings.weekCycleUnit);
@@ -78,6 +85,8 @@ const ChartMain = () => {
                         targetValue: nextValue,
                         savedPool: newSavedPool,
                         usablePool: newUsablePool,
+                        poolDiff: 0,
+                        countDiff: 0
                     }
                 }
 
@@ -88,20 +97,24 @@ const ChartMain = () => {
 
                 if (marketValue > ceilingValue) {
                     const overpriced = marketValue - ceilingValue;
-                    const overpriceCount = Math.floor(overpriced / v.close);
-                    const sold = overpriceCount * v.close;
+                    const overpriceCount = Math.floor(overpriced / (v.close * v.ratio));
+                    const sold = overpriceCount * v.close * v.ratio;
 
                     lastVR.savedPool += sold;
                     lastVR.stockCount -= overpriceCount;
+                    lastVR.poolDiff += sold;
+                    lastVR.countDiff -= overpriceCount;
                 }
 
                 if (marketValue < bottomValue) {
                     const underpriced = Math.min(bottomValue - marketValue, lastVR.usablePool);
-                    const underpriceCount = Math.floor(underpriced / v.close);
-                    const bought = underpriceCount * v.close;
+                    const underpriceCount = Math.floor(underpriced / (v.close * v.ratio));
+                    const bought = underpriceCount * v.close * v.ratio;
                     lastVR.costBasis = (lastVR.costBasis * lastVR.stockCount + bought) / (lastVR.stockCount + underpriceCount)
                     lastVR.stockCount += underpriceCount;
                     lastVR.usablePool -= bought;
+                    lastVR.poolDiff -= bought;
+                    lastVR.countDiff += underpriceCount;
                 }
 
                 return {
@@ -116,10 +129,10 @@ const ChartMain = () => {
 
             // 주식
             new LineArea(subCtrl, (data) => {
-                return data.map(({close}, i) => {
+                return data.map(({close, ratio}, i) => {
                     const vr = vrHistory[i];
                     return {
-                        top: vr.usablePool + vr.savedPool + vr.stockCount * close,
+                        top: vr.usablePool + vr.savedPool + vr.stockCount * close * ratio,
                         bottom: vr.usablePool + vr.savedPool
                     };
                 })
@@ -236,7 +249,7 @@ const ChartMain = () => {
                 const {x, y} = canvas.getBoundingClientRect();
                 const posData = subCtrl.getMousePosData({x: e.x - x, y: e.y - y});
 
-                setMousePosData({...posData, vrData: vrHistory[posData.index]});
+                setMousePosData({...posData, vrData: vrHistory[posData.index], stockData: root.data[posData.index]});
                 requestAnimationFrame(() => moveThrottle = false)
             }
 
@@ -255,20 +268,46 @@ const ChartMain = () => {
         return root.cleanup;
     }, [settings])
 
+    const label = (() => {
+        if (!(mousePosData && root.data[mousePosData.index])) {
+            return null;
+        }
+
+        const date = new Date(root.data[mousePosData.index].date).toISOString().substring(0, 10);
+        const week = mousePosData.vrData.week * settings.weekCycleUnit;
+        const totalDeposit = mousePosData.vrData.totalDeposit;
+        const pool = Util.dropDecimal(mousePosData.vrData.savedPool + mousePosData.vrData.usablePool, 2);
+        const stockCount = mousePosData.vrData.stockCount;
+        const marketPrice = Util.dropDecimal(mousePosData.vrData.stockCount * mousePosData.stockData.close * mousePosData.stockData.ratio, 2);
+        const totalValue = pool + marketPrice
+        const poolDiff = Util.dropDecimal(mousePosData.vrData.poolDiff, 2);
+        const countDiff = Util.dropDecimal(mousePosData.vrData.countDiff, 2);
+        const costBasis = Util.dropDecimal(mousePosData.vrData.costBasis, 2);
+        const close = Util.dropDecimal(mousePosData.stockData.close * mousePosData.stockData.ratio, 2);
+        const rate = Util.dropDecimal((totalValue / totalDeposit - 1) * 100, 2)
+        return {date, week, totalDeposit, pool, stockCount, marketPrice, totalValue, poolDiff, countDiff, costBasis, close, rate}
+    })();
 
     return <div className={styles.wrapper}>
         <canvas ref={ref}/>
-        {mousePosData && root.data[mousePosData.index] && <>
+        {mousePosData && label && root.data[mousePosData.index] && <>
             <div className={styles.xLine} style={{top: 0, left: mousePosData.x}}>
             </div>
             <div className={styles.yLine} style={{top: mousePosData.y, left: 0}}>
                 <div>${Util.dropDecimal(mousePosData.price, 2).toLocaleString()}</div>
             </div>
             <div className={styles.label} style={{top: mousePosData.y + 10, left: mousePosData.x + 10}}>
-                <div>{new Date(root.data[mousePosData.index].date).toISOString().substring(0, 10)}</div>
-                <div>원금: {mousePosData.vrData.totalDeposit}</div>
+                <div>{label.date} ({label.week}주차)</div>
+                <div>원금: ${label.totalDeposit.toLocaleString()}</div>
                 <div>Pool:
-                    ${Util.dropDecimal(mousePosData.vrData.savedPool + mousePosData.vrData.usablePool, 2).toLocaleString()}</div>
+                    ${label.pool.toLocaleString()} {!!label.poolDiff && <span style={{color: label.countDiff > 0 ? 'blue' : 'red'}}>({label.poolDiff > 0 ? '+' : '-'}${Math.abs(label.poolDiff).toLocaleString()})</span>}</div>
+                <div>수량: {label.stockCount.toLocaleString()}주 {!!label.countDiff && <span style={{color: label.countDiff > 0 ? 'red' : 'blue'}}>({label.countDiff > 0 && '+'}{label.countDiff.toLocaleString()})</span>}</div>
+                <div>평단: ${label.costBasis.toLocaleString()}</div>
+                <div>종가: ${label.close.toLocaleString()}</div>
+                <div>TQQQ 평가금:
+                    ${label.marketPrice.toLocaleString()}</div>
+                <div>총평가금:
+                    ${label.totalValue.toLocaleString()}({label.rate.toLocaleString()}%)</div>
             </div>
         </>}
     </div>

@@ -6,6 +6,8 @@ interface IVRHistory {
     costBasis: number;
     targetValue: number;
     totalDeposit: number;
+    poolDiff: number;
+    countDiff: number;
 }
 
 export default IVRHistory;

@@ -73,12 +73,12 @@ const ChartSettings = () => {
         <div>종료: <input type={'date'} ref={endDateRef} defaultValue={settings.endDate} onChange={handleChangeEndDate}/>
         </div>
         <div>시작 금액: $<input type={'number'} ref={startAssetRef} onBlur={handleChangeInteger} min={0}
-                            defaultValue={settings.startAsset} style={{width: 50}} step={1}/></div>
+                            defaultValue={settings.startAsset} style={{width: 100}} step={1}/></div>
         <div>리밸런싱 주기: <input type={'number'} ref={weekCycleRef} onBlur={handleChangeInteger} min={1}
-                             defaultValue={settings.weekCycleUnit} style={{width: 50}} step={1}/>주
+                             defaultValue={settings.weekCycleUnit} style={{width: 100}} step={1}/>주
         </div>
         <div>투입/인출금: $<input type={'number'} ref={cycleDepositRef} onBlur={handleChangeInteger}
-                             defaultValue={settings.getCycleDeposit(0)} style={{width: 50}} step={1}/></div>
+                             defaultValue={settings.getCycleDeposit(0)} style={{width: 80}} step={1}/></div>
         <div>시작 G: <input type={'number'} ref={gradientRef} min={1} onBlur={handleChangeInteger}
                           defaultValue={settings.getGradient(0)} style={{width: 50}} step={1}/>
             <br/><span>└ <input type={'number'} ref={gradientWeekRef} min={1} onBlur={handleChangeInteger}
