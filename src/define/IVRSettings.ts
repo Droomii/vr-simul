@@ -1,11 +1,12 @@
 interface IVRSettings {
     startDate: string;
     endDate: string;
-    startAsset: number;
+    startStock: number;
+    startPool: number;
     weekCycleUnit: number;
     getCycleDeposit(week: number): number;
-    getGradient(this: IVRSettings, week: number): number;
-    getPoolLimit(this: IVRSettings, week: number): number;
+    getGradient(week: number): number;
+    getPoolLimit(week: number): number;
 }
 
 export default IVRSettings;

@@ -17,7 +17,8 @@ const defaultValue: IContext = {
         settings: {
             startDate: '2000-01-01',
             endDate: new Date().toISOString().substring(0, 10),
-            startAsset: 5000,
+            startStock: 5000,
+            startPool: 0,
             weekCycleUnit: 2,
             getCycleDeposit() {
                 return 250

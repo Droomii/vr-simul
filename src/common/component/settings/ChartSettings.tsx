@@ -7,7 +7,8 @@ const ChartSettings = () => {
     const {state: {settings}, setSettings} = useChartContext();
     const startDateRef = useRef<HTMLInputElement>(null);
     const endDateRef = useRef<HTMLInputElement>(null);
-    const startAssetRef = useRef<HTMLInputElement>(null);
+    const startStockRef = useRef<HTMLInputElement>(null);
+    const startPoolRef = useRef<HTMLInputElement>(null);
     const weekCycleRef = useRef<HTMLInputElement>(null);
     const cycleDepositRef = useRef<HTMLInputElement>(null);
     const gradientRef = useRef<HTMLInputElement>(null);
@@ -41,7 +42,8 @@ const ChartSettings = () => {
 
     const handleSubmit = () => {
         const weekCycleUnit = Number(weekCycleRef.current?.value);
-        const startAsset = Number(startAssetRef.current?.value);
+        const startStock = Number(startStockRef.current?.value);
+        const startPool = Number(startPoolRef.current?.value);
         const poolLimitWeek = Number(poolWeekRef.current?.value);
         const poolLimit = Number(poolLimitRef.current?.value);
         const poolDecrease = Number(poolDecreaseRef.current?.value);
@@ -54,7 +56,8 @@ const ChartSettings = () => {
             startDate: startDateRef.current?.value,
             endDate: endDateRef.current?.value,
             weekCycleUnit,
-            startAsset,
+            startStock,
+            startPool,
             getPoolLimit(week: number): number {
                 return 1 - Math.min((100 - poolLimit) / 100 + Math.floor(week / poolLimitWeek) * (poolDecrease / 100), 1 - poolMinLimit / 100)
             },
@@ -73,8 +76,10 @@ const ChartSettings = () => {
                         onChange={handleChangeStartDate}/></div>
         <div>종료: <input type={'date'} ref={endDateRef} defaultValue={settings.endDate} onChange={handleChangeEndDate}/>
         </div>
-        <div>시작 금액: $<input type={'number'} ref={startAssetRef} onBlur={handleChangeInteger} min={0}
-                            defaultValue={settings.startAsset} style={{width: 100}} step={1}/></div>
+        <div>시작 TQQQ 액수: $<input type={'number'} ref={startStockRef} onBlur={handleChangeInteger} min={0}
+                            defaultValue={settings.startStock} style={{width: 100}} step={1}/></div>
+        <div>시작 Pool: $<input type={'number'} ref={startPoolRef} onBlur={handleChangeInteger} min={0}
+                                 defaultValue={settings.startPool} style={{width: 100}} step={1}/></div>
         <div>리밸런싱 주기: <input type={'number'} ref={weekCycleRef} onBlur={handleChangeInteger} min={1}
                              defaultValue={settings.weekCycleUnit} style={{width: 100}} step={1}/>주
         </div>

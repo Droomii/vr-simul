@@ -31,18 +31,22 @@
       bottom: 4px;
     }
   }
-
-  > .label {
-    border: 1px solid lightgray;
-    white-space: nowrap;
-    border-radius: 8px;
-    padding: 12px;
-    background: white;
+  > .labelWrap {
     position: absolute;
+    padding: 10px;
     pointer-events: none;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    box-shadow: 8px 7px 20px 0px #00000036;
+
+    > .label {
+      border: 1px solid lightgray;
+      white-space: nowrap;
+      border-radius: 8px;
+      padding: 12px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 8px 7px 20px 0 #00000036;
+    }
   }
+
 }
