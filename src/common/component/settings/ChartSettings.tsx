@@ -10,6 +10,7 @@ const ChartSettings = () => {
     const startStockRef = useRef<HTMLInputElement>(null);
     const startPoolRef = useRef<HTMLInputElement>(null);
     const weekCycleRef = useRef<HTMLInputElement>(null);
+    const depositRadioRef = useRef<HTMLInputElement>(null);
     const cycleDepositRef = useRef<HTMLInputElement>(null);
     const gradientRef = useRef<HTMLInputElement>(null);
     const gradientWeekRef = useRef<HTMLInputElement>(null);
@@ -51,7 +52,7 @@ const ChartSettings = () => {
         const gradient = Number(gradientRef.current?.value);
         const gradientWeek = Number(gradientWeekRef.current?.value);
         const gradientIncrease = Number(gradientIncreaseRef.current?.value);
-        const cycleDeposit = Number(cycleDepositRef.current?.value);
+        const cycleDeposit = Number(cycleDepositRef.current?.value) * (depositRadioRef.current?.checked ? 1 : -1);
         const settings: Partial<IVRSettings> = {
             startDate: startDateRef.current?.value,
             endDate: endDateRef.current?.value,
@@ -72,34 +73,33 @@ const ChartSettings = () => {
     }
 
     return <div className={styles.controlWrap}>
-        <div>시작: <input type={'date'} ref={startDateRef} defaultValue={settings.startDate}
-                        onChange={handleChangeStartDate}/></div>
-        <div>종료: <input type={'date'} ref={endDateRef} defaultValue={settings.endDate} onChange={handleChangeEndDate}/>
-        </div>
-        <div>시작 TQQQ 액수: $<input type={'number'} ref={startStockRef} onBlur={handleChangeInteger} min={0}
-                            defaultValue={settings.startStock} style={{width: 100}} step={1}/></div>
-        <div>시작 Pool: $<input type={'number'} ref={startPoolRef} onBlur={handleChangeInteger} min={0}
+        <div>기간: <input type={'date'} ref={startDateRef} defaultValue={settings.startDate}
+                        onChange={handleChangeStartDate}/> ~ <input type={'date'} ref={endDateRef} defaultValue={settings.endDate} onChange={handleChangeEndDate}/></div>
+        <div><span>시작 TQQQ 액수: $<input type={'number'} ref={startStockRef} onBlur={handleChangeInteger} min={0}
+                            defaultValue={settings.startStock} style={{width: 100}} step={1}/>,</span>
+        시작 Pool: $<input type={'number'} ref={startPoolRef} onBlur={handleChangeInteger} min={0}
                                  defaultValue={settings.startPool} style={{width: 100}} step={1}/></div>
         <div>리밸런싱 주기: <input type={'number'} ref={weekCycleRef} onBlur={handleChangeInteger} min={1}
-                             defaultValue={settings.weekCycleUnit} style={{width: 100}} step={1}/>주
+                             defaultValue={settings.weekCycleUnit} style={{width: 50}} step={1}/>주
         </div>
-        <div>투입/인출금: $<input type={'number'} ref={cycleDepositRef} onBlur={handleChangeInteger}
-                             defaultValue={settings.getCycleDeposit(0)} style={{width: 80}} step={1}/></div>
+        <div>적립/인출금: $<input type={'number'} ref={cycleDepositRef} min={0} onBlur={handleChangeInteger}
+                             defaultValue={settings.getCycleDeposit(0)} style={{width: 80}} step={1}/>
+            <label htmlFor={'deposit'}><input ref={depositRadioRef} id={'deposit'} type={'radio'} value={'deposit'} name={'deposit'} defaultChecked={true}/>적립</label>
+            <label htmlFor={'withdraw'}><input id={'withdraw'} type={'radio'} value={'withdraw'} name={'deposit'}/>인출</label>
+        </div>
         <div>시작 G: <input type={'number'} ref={gradientRef} min={1} onBlur={handleChangeInteger}
                           defaultValue={settings.getGradient(0)} style={{width: 50}} step={1}/>
-            <br/><span>└ <input type={'number'} ref={gradientWeekRef} min={1} onBlur={handleChangeInteger}
+            <br/><span> (<input type={'number'} ref={gradientWeekRef} min={1} onBlur={handleChangeInteger}
                                 defaultValue={52} style={{width: 40}} step={1}/>주마다 </span>
             <span><input type={'number'} ref={gradientIncreaseRef} min={0} onBlur={handleChangeInteger}
-                         defaultValue={1} style={{width: 40}} step={1}/> 증가 </span></div>
-        <div>Pool 한도: <input type={'number'} ref={poolLimitRef} min={1} onBlur={handleChangeInteger}
-                             defaultValue={settings.getPoolLimit(0) * 100} max={100} style={{width: 50}} step={1}/>%
-            <br/><span>└ <input type={'number'} ref={poolWeekRef} min={1} onBlur={handleChangeInteger}
+                         defaultValue={1} style={{width: 40}} step={1}/> 증가)</span></div>
+        <div><span>Pool 한도: <input type={'number'} ref={poolLimitRef} min={1} onBlur={handleChangeInteger}
+                                   defaultValue={settings.getPoolLimit(0) * 100} max={100} style={{width: 50}} step={1}/>%</span>
+            (<span><input type={'number'} ref={poolWeekRef} min={1} onBlur={handleChangeInteger}
                                 defaultValue={26} style={{width: 40}} step={1}/>주마다 </span>
             <span><input type={'number'} ref={poolDecreaseRef} min={0} max={100} onBlur={handleChangeInteger}
-                         defaultValue={5} style={{width: 40}} step={1}/>% 감소 </span>
-
-            <br/><span>└ 최소 <input type={'number'} ref={poolMinLimitRef} min={0} max={100} onBlur={handleChangeInteger}
-                                   defaultValue={10} style={{width: 40}} step={1}/>%</span>
+                         defaultValue={5} style={{width: 40}} step={1}/>% 감소, 최소 <input type={'number'} ref={poolMinLimitRef} min={0} max={100} onBlur={handleChangeInteger}
+                                   defaultValue={10} style={{width: 40}} step={1}/>%)</span>
         </div>
         <div>
         <button type={'button'} onClick={handleSubmit}>적용</button>

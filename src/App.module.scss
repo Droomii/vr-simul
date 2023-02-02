@@ -9,18 +9,14 @@
     border-bottom: 1px solid black;
     flex-shrink: 0;
   }
-
-  .chartRSI {
-    height: 100px;
-    flex-shrink: 0;
-  }
 }
 
 .controlWrap {
-  width: 320px;
-  padding-top: 64px;
+  padding: 12px;
+  height: 360px;
   > div {
     margin-top: 12px;
-    padding-top: 12px;
+    display: flex;
+    gap: 4px;
   }
 }
