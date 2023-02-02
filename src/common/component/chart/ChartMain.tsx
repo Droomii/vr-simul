@@ -77,7 +77,7 @@ const ChartMain = () => {
           const totalPool = lastVR.savedPool + lastVR.usablePool;
           const gradient = settings.getGradient(week * settings.weekCycleUnit);
           const newPool = Math.max(totalPool + settings.getCycleDeposit(week), 0);
-          const nextValue = Math.max(lastVR.targetValue + totalPool / gradient + (marketValue - lastVR.targetValue) / (2 * Math.sqrt(gradient)) + settings.getCycleDeposit(week), 0);
+          const nextValue = Math.max(lastVR.targetValue + totalPool / gradient + (settings.isAdvancedFormula ? (marketValue - lastVR.targetValue) / (2 * Math.sqrt(gradient)) : 0) + settings.getCycleDeposit(week), 0);
           const newSavedPool = newPool * (1 - settings.getPoolLimit(week * settings.weekCycleUnit));
           const newUsablePool = newPool - newSavedPool;
           lastVR.totalDeposit = Math.max(lastVR.totalDeposit + settings.getCycleDeposit(week), 0)

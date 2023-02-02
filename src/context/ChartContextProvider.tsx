@@ -20,6 +20,7 @@ const defaultValue: IContext = {
             startStock: 5000,
             startPool: 0,
             weekCycleUnit: 2,
+            isAdvancedFormula: true,
             getCycleDeposit() {
                 return 250
             },

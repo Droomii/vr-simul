@@ -7,6 +7,7 @@ const ChartSettings = () => {
     const {state: {settings}, setSettings} = useChartContext();
     const startDateRef = useRef<HTMLInputElement>(null);
     const endDateRef = useRef<HTMLInputElement>(null);
+    const advancedRadioRef = useRef<HTMLInputElement>(null);
     const startStockRef = useRef<HTMLInputElement>(null);
     const startPoolRef = useRef<HTMLInputElement>(null);
     const weekCycleRef = useRef<HTMLInputElement>(null);
@@ -52,6 +53,7 @@ const ChartSettings = () => {
         const gradient = Number(gradientRef.current?.value);
         const gradientWeek = Number(gradientWeekRef.current?.value);
         const gradientIncrease = Number(gradientIncreaseRef.current?.value);
+        const isAdvancedFormula = !!advancedRadioRef.current?.checked;
         const cycleDeposit = Number(cycleDepositRef.current?.value) * (depositRadioRef.current?.checked ? 1 : -1);
         const settings: Partial<IVRSettings> = {
             startDate: startDateRef.current?.value,
@@ -59,6 +61,7 @@ const ChartSettings = () => {
             weekCycleUnit,
             startStock,
             startPool,
+            isAdvancedFormula,
             getPoolLimit(week: number): number {
                 return 1 - Math.min((100 - poolLimit) / 100 + Math.floor(week / poolLimitWeek) * (poolDecrease / 100), 1 - poolMinLimit / 100)
             },
@@ -72,9 +75,12 @@ const ChartSettings = () => {
         setSettings(settings)
     }
 
-    return <div className={styles.controlWrap}>
+    return <form className={styles.controlWrap}>
         <div>기간: <input type={'date'} ref={startDateRef} defaultValue={settings.startDate}
-                        onChange={handleChangeStartDate}/> ~ <input type={'date'} ref={endDateRef} defaultValue={settings.endDate} onChange={handleChangeEndDate}/></div>
+                        onChange={handleChangeStartDate}/> ~ <input type={'date'} ref={endDateRef} defaultValue={settings.endDate} onChange={handleChangeEndDate}/>
+            <label htmlFor={'basicFormula'}><input  id={'basicFormula'} type={'radio'} value={'basic'} name={'formula'} />기본공식</label>
+            <label htmlFor={'advancedFormula'}><input ref={advancedRadioRef} id={'advancedFormula'} type={'radio'} value={'advancedFormula'} name={'formula'} defaultChecked={true}/>실력공식</label>
+        </div>
         <div><span>시작 TQQQ 액수: $<input type={'number'} ref={startStockRef} onBlur={handleChangeInteger} min={0}
                             defaultValue={settings.startStock} style={{width: 100}} step={1}/>,</span>
         시작 Pool: $<input type={'number'} ref={startPoolRef} onBlur={handleChangeInteger} min={0}
@@ -85,7 +91,7 @@ const ChartSettings = () => {
         <div>적립/인출금: $<input type={'number'} ref={cycleDepositRef} min={0} onBlur={handleChangeInteger}
                              defaultValue={settings.getCycleDeposit(0)} style={{width: 80}} step={1}/>
             <label htmlFor={'deposit'}><input ref={depositRadioRef} id={'deposit'} type={'radio'} value={'deposit'} name={'deposit'} defaultChecked={true}/>적립</label>
-            <label htmlFor={'withdraw'}><input id={'withdraw'} type={'radio'} value={'withdraw'} name={'deposit'}/>인출</label>
+            <label htmlFor={'withdraw'}><input id={'withdraw'} type={'radio'} value={'withdraw'} name={'deposit'}/>인출</label> (0 = 거치식)
         </div>
         <div>시작 G: <input type={'number'} ref={gradientRef} min={1} onBlur={handleChangeInteger}
                           defaultValue={settings.getGradient(0)} style={{width: 50}} step={1}/>
@@ -104,7 +110,7 @@ const ChartSettings = () => {
         <div>
         <button type={'button'} onClick={handleSubmit}>적용</button>
         </div>
-    </div>
+    </form>
 }
 
 export default ChartSettings;
