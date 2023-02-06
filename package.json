@@ -1,6 +1,6 @@
 {
   "name": "stock-backtester",
-  "homepage": "https://droomii.github.io/vr-simul",
+  "homepage": "https://droomii.github.io/stock-simul",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
