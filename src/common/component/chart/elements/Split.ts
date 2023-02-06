@@ -19,7 +19,7 @@ class Split extends ChartElement<number | null> {
                 ctx.closePath();
                 ctx.textAlign = 'left';
                 ctx.fillStyle = this._stroke;
-                ctx.fillText(`액면${v > 0 ? '분할' : '병합'} (${Math.max(v, 1)}:${Math.min(1, Math.round(1 / v))})`, (i + 1) * this.zoom - Math.floor((this.zoom / 2)) + 4, 12)
+                ctx.fillText(`액면${v > 0 ? '분할' : '병합'} (${Math.max(v, 1)}:${Math.max(1, Math.round(1 / v))})`, (i + 1) * this.zoom - Math.floor((this.zoom / 2)) + 4, 12)
             }
         })
     }
