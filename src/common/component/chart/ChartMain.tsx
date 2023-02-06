@@ -288,6 +288,8 @@ const ChartMain = () => {
     const stockCount = mousePosData.vrData.stockCount;
     const marketPrice = Util.dropDecimal(mousePosData.vrData.stockCount * mousePosData.stockData.close * mousePosData.stockData.ratio, 2);
     const totalValue = pool + marketPrice
+    const targetValue = Util.dropDecimal(mousePosData.vrData.targetValue, 2);
+    const targetValueRate = Util.dropDecimal((marketPrice / mousePosData.vrData.targetValue  - 1) * 100, 2);
     const poolDiff = Util.dropDecimal(mousePosData.vrData.poolDiff, 2);
     const countDiff = Util.dropDecimal(mousePosData.vrData.countDiff, 2);
     const costBasis = Util.dropDecimal(mousePosData.vrData.costBasis, 2);
@@ -309,7 +311,9 @@ const ChartMain = () => {
       close,
       rate,
       gradient,
-      poolLimit
+      poolLimit,
+      targetValue,
+      targetValueRate
     }
   })();
   return <div className={styles.wrapper}>
@@ -333,8 +337,10 @@ const ChartMain = () => {
                         style={{color: label.countDiff > 0 ? 'blue' : 'red'}}>({label.poolDiff > 0 ? '+' : '-'}${Math.abs(label.poolDiff).toLocaleString()})</span>}</div>
                 <div>수량: {label.stockCount.toLocaleString()}주 {!!label.countDiff && <span
                     style={{color: label.countDiff > 0 ? 'red' : 'blue'}}>({label.countDiff > 0 && '+'}{label.countDiff.toLocaleString()})</span>}</div>
+              <div>목표 V: ${label.targetValue.toLocaleString()}</div>
               <div>TQQQ 평가금:
                 ${label.marketPrice.toLocaleString()}</div>
+              <div>목표 V 대비 {label.targetValueRate}%</div>
                 <div>G: {label.gradient}</div>
                 <div>Pool 한도: {label.poolLimit}%</div>
                 <div>총평가금:

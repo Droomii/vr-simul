@@ -2760,12 +2760,12 @@ const split = `Date,Stock Splits
 2009-10-01,2:1`
 
 const getJoinedData = async () => {
-    const dataFetch = await fetch(`/data/TQQQ.csv`).then(v => v.text());
+    const dataFetch = await fetch(`${process.env?.PUBLIC_URL}/data/TQQQ.csv`).then(v => v.text());
     return data + dataFetch.substring(dataFetch.indexOf('\n'));
 }
 
 const getJoinedSplit = async () => {
-    const dataFetch = await fetch(`/data/TQQQ_split.csv`).then(v => v.text());
+    const dataFetch = await fetch(`${process.env?.PUBLIC_URL}/data/TQQQ_split.csv`).then(v => v.text());
     return split + dataFetch.substring(dataFetch.indexOf('\n'));
 }
 
