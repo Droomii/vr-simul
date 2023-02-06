@@ -340,7 +340,7 @@ const ChartMain = () => {
               <div>목표 V: ${label.targetValue.toLocaleString()}</div>
               <div>TQQQ 평가금:
                 ${label.marketPrice.toLocaleString()}</div>
-              <div>목표 V 대비 {label.targetValueRate}%</div>
+              <div>목표 V 대비 <span style={{color: label.targetValueRate > 0 ? 'red' : 'blue'}}>{label.targetValueRate > 0 && '+'}{label.targetValueRate}%</span></div>
                 <div>G: {label.gradient}</div>
                 <div>Pool 한도: {label.poolLimit}%</div>
                 <div>총평가금:
