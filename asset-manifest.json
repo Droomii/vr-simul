@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/vr-simul/static/css/main.49dae424.css",
-    "main.js": "/vr-simul/static/js/main.ad8ad3f1.js",
+    "main.js": "/vr-simul/static/js/main.a8b25dac.js",
     "static/js/787.11dc8a8a.chunk.js": "/vr-simul/static/js/787.11dc8a8a.chunk.js",
     "index.html": "/vr-simul/index.html",
     "main.49dae424.css.map": "/vr-simul/static/css/main.49dae424.css.map",
-    "main.ad8ad3f1.js.map": "/vr-simul/static/js/main.ad8ad3f1.js.map",
+    "main.a8b25dac.js.map": "/vr-simul/static/js/main.a8b25dac.js.map",
     "787.11dc8a8a.chunk.js.map": "/vr-simul/static/js/787.11dc8a8a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.49dae424.css",
-    "static/js/main.ad8ad3f1.js"
+    "static/js/main.a8b25dac.js"
   ]
 }
