@@ -12,11 +12,20 @@
 }
 
 .controlWrap {
+  position: fixed;
+  background: white;
+  border: 1px solid #c7c7c7;
+  border-radius: 8px;
+  bottom: 0;
   padding: 12px;
-  height: 360px;
   > div {
     margin-top: 12px;
     display: flex;
     gap: 4px;
   }
+}
+
+.settingsWrap {
+  position: relative;
+  height: 24px;
 }

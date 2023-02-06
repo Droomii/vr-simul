@@ -20,6 +20,7 @@ const ChartSettings = () => {
     const poolWeekRef = useRef<HTMLInputElement>(null);
     const poolDecreaseRef = useRef<HTMLInputElement>(null);
     const poolMinLimitRef = useRef<HTMLInputElement>(null);
+    const bandRef = useRef<HTMLInputElement>(null);
 
 
     const handleChangeStartDate = ({currentTarget: {value}}: { currentTarget: { value: string } }) => {
@@ -55,6 +56,8 @@ const ChartSettings = () => {
         const gradientIncrease = Number(gradientIncreaseRef.current?.value);
         const isAdvancedFormula = !!advancedRadioRef.current?.checked;
         const cycleDeposit = Number(cycleDepositRef.current?.value) * (depositRadioRef.current?.checked ? 1 : -1);
+        const band = Number(bandRef.current?.value)
+
         const settings: Partial<IVRSettings> = {
             startDate: startDateRef.current?.value,
             endDate: endDateRef.current?.value,
@@ -62,6 +65,7 @@ const ChartSettings = () => {
             startStock,
             startPool,
             isAdvancedFormula,
+            band,
             getPoolLimit(week: number): number {
                 return 1 - Math.min((100 - poolLimit) / 100 + Math.floor(week / poolLimitWeek) * (poolDecrease / 100), 1 - poolMinLimit / 100)
             },
@@ -87,6 +91,9 @@ const ChartSettings = () => {
                                  defaultValue={settings.startPool} style={{width: 100}} step={1}/></div>
         <div>리밸런싱 주기: <input type={'number'} ref={weekCycleRef} onBlur={handleChangeInteger} min={1}
                              defaultValue={settings.weekCycleUnit} style={{width: 50}} step={1}/>주
+        </div>
+        <div>최소/최대 밴드: ±<input type={'number'} ref={bandRef} onBlur={handleChangeInteger} min={0}
+                             defaultValue={settings.band} style={{width: 50}} step={1}/>%
         </div>
         <div>적립/인출금: $<input type={'number'} ref={cycleDepositRef} min={0} onBlur={handleChangeInteger}
                              defaultValue={settings.getCycleDeposit(0)} style={{width: 80}} step={1}/>

@@ -4,6 +4,7 @@ interface IVRSettings {
     startStock: number;
     startPool: number;
     weekCycleUnit: number;
+    band: number;
     isAdvancedFormula: boolean;
     getCycleDeposit(week: number): number;
     getGradient(week: number): number;

@@ -94,7 +94,7 @@ const ChartMain = () => {
           }
         }
 
-        const bandRange = 0.15;
+        const bandRange = settings.band / 100;
 
         const ceilingValue = lastVR.targetValue * (1 + bandRange);
         const bottomValue = lastVR.targetValue * (1 - bandRange);
@@ -166,7 +166,7 @@ const ChartMain = () => {
       // 밴드
       new LineArea(subCtrl, () => vrHistory.map(v => {
         const totalTarget = v.targetValue + v.usablePool + v.savedPool
-        return ({top: totalTarget * 1.15, bottom: totalTarget * 0.85})
+        return ({top: totalTarget * (1 + settings.band / 100), bottom: totalTarget * (1 - settings.band / 100)})
       }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange', square: true})
 
       const {refresh} = root;

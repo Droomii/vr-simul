@@ -14,7 +14,9 @@ function App() {
                         <ChartMain/>
                     </div>
                 </div>
-                <ChartSettings/>
+                <div className={styles.settingsWrap}>
+                    <ChartSettings/>
+                </div>
             </ChartContextProvider>
         </div>
     );
