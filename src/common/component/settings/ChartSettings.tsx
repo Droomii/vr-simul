@@ -1,10 +1,11 @@
 import styles from "../../../App.module.scss";
-import React, {useRef} from "react";
+import React, {useRef, useState} from "react";
 import useChartContext from "../../../context/useChartContext";
 import IVRSettings from "../../../define/IVRSettings";
 
 const ChartSettings = () => {
     const {state: {settings}, setSettings} = useChartContext();
+    const [expand, setExpand] = useState(true);
     const startDateRef = useRef<HTMLInputElement>(null);
     const endDateRef = useRef<HTMLInputElement>(null);
     const advancedRadioRef = useRef<HTMLInputElement>(null);
@@ -79,7 +80,9 @@ const ChartSettings = () => {
         setSettings(settings)
     }
 
-    return <form className={styles.controlWrap}>
+    return <div className={styles.controlWrap} style={expand ? {bottom: 0} : undefined}>
+        <button type={'button'} className={styles.thumb} onClick={() => setExpand(v => !v)}>설정</button>
+        <div className={styles.controlContainer}>
         <div>기간: <input type={'date'} ref={startDateRef} defaultValue={settings.startDate}
                         onChange={handleChangeStartDate}/> ~ <input type={'date'} ref={endDateRef} defaultValue={settings.endDate} onChange={handleChangeEndDate}/>
             <label htmlFor={'basicFormula'}><input  id={'basicFormula'} type={'radio'} value={'basic'} name={'formula'} />기본공식</label>
@@ -117,7 +120,8 @@ const ChartSettings = () => {
         <div>
         <button type={'button'} onClick={handleSubmit}>적용</button>
         </div>
-    </form>
+        </div>
+    </div>
 }
 
 export default ChartSettings;
