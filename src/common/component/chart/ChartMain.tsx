@@ -71,6 +71,9 @@ const ChartMain = () => {
         if (v.split) {
           lastVR.costBasis /= v.split;
           lastVR.stockCount *= v.split;
+          const leftover = lastVR.stockCount - (lastVR.stockCount | 1);
+          lastVR.stockCount -= leftover;
+          lastVR.savedPool += leftover * lastVR.costBasis;
         }
         const marketValue = v.close * v.ratio * lastVR.stockCount
         if (week !== lastWeek) {

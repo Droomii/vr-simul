@@ -1,6 +1,6 @@
 import IStockHistory from "../../../../define/IStockHistory";
 import ChartController from "../controller/ChartController";
-import Util from "../../../../util/Util";
+import TQQQ_virtual from "../../../../stockData/TQQQ_virtual";
 
 class ChartRoot {
     zoom = 6;
@@ -14,9 +14,7 @@ class ChartRoot {
     async loadData(ticker: string, callback: () => (() => void)) {
         this.zoom = 0;
         this.offset = 0;
-        const dataFetch = fetch(`/data/${ticker}.csv`).then(v => v.text());
-        const splitFetch = fetch(`/data/${ticker}_split.csv`).then(v => v.text());
-        this._data = Util.parseData(await dataFetch, await splitFetch);
+        this._data = await TQQQ_virtual;
         this.updateSlice();
         this._cleanup = callback();
     }

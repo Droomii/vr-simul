@@ -1,5 +1,4 @@
 import Util from "../util/Util";
-import {tqqqRaw, tqqqSplitRaw} from "./TQQQ";
 
 const data = `Date,Open,High,Low,Close,Adj Close,Volume
 1999-03-10,32.099223,32.099223,32.099223,32.099223
@@ -2752,17 +2751,26 @@ const data = `Date,Open,High,Low,Close,Adj Close,Volume
 2010-02-09,0.418391,0.427762,0.406464,0.416403
 2010-02-10,0.416403,0.422199,0.405971,0.413795`
 
-const joinedData = data + tqqqRaw.substring(data.indexOf('\n'));
-
 const split = `Date,Stock Splits
 2000-03-01,3:1
 2001-01-02,1:5
 2001-10-01,1:5
 2002-10-01,1:10
 2009-01-02,1:5
-2009-10-01,2:1
-`
+2009-10-01,2:1`
 
-const joinedSplit = split + tqqqSplitRaw.substring(data.indexOf('\n'));
+const getJoinedData = async () => {
+    const dataFetch = await fetch(`/data/TQQQ.csv`).then(v => v.text());
+    return data + dataFetch.substring(dataFetch.indexOf('\n'));
+}
 
-export default Util.parseData(joinedData, joinedSplit);
+const getJoinedSplit = async () => {
+    const dataFetch = await fetch(`/data/TQQQ_split.csv`).then(v => v.text());
+    return split + dataFetch.substring(dataFetch.indexOf('\n'));
+}
+
+const getData = async () => {
+    return Util.parseData(await getJoinedData(), await getJoinedSplit());
+}
+
+export default getData();
