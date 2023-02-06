@@ -293,6 +293,8 @@ const ChartMain = () => {
     const costBasis = Util.dropDecimal(mousePosData.vrData.costBasis, 2);
     const close = Util.dropDecimal(mousePosData.stockData.close * mousePosData.stockData.ratio, 2);
     const rate = Util.dropDecimal((totalValue / totalDeposit - 1) * 100, 2)
+    const gradient = settings.getGradient(week);
+    const poolLimit = Math.round(settings.getPoolLimit(week) * 100);
     return {
       date,
       week,
@@ -305,7 +307,9 @@ const ChartMain = () => {
       countDiff,
       costBasis,
       close,
-      rate
+      rate,
+      gradient,
+      poolLimit
     }
   })();
   return <div className={styles.wrapper}>
@@ -329,12 +333,13 @@ const ChartMain = () => {
                         style={{color: label.countDiff > 0 ? 'blue' : 'red'}}>({label.poolDiff > 0 ? '+' : '-'}${Math.abs(label.poolDiff).toLocaleString()})</span>}</div>
                 <div>수량: {label.stockCount.toLocaleString()}주 {!!label.countDiff && <span
                     style={{color: label.countDiff > 0 ? 'red' : 'blue'}}>({label.countDiff > 0 && '+'}{label.countDiff.toLocaleString()})</span>}</div>
-                <div>평단: ${label.costBasis.toLocaleString()}</div>
-                <div>종가: ${label.close.toLocaleString()}</div>
-                <div>TQQQ 평가금:
-                    ${label.marketPrice.toLocaleString()}</div>
+              <div>TQQQ 평가금:
+                ${label.marketPrice.toLocaleString()}</div>
+                <div>G: {label.gradient}</div>
+                <div>Pool 한도: {label.poolLimit}%</div>
                 <div>총평가금:
-                    ${label.totalValue.toLocaleString()}({label.rate.toLocaleString()}%)
+                    ${label.totalValue.toLocaleString()}<span
+                      style={{color: label.rate > 0 ? 'red' : 'blue'}}>({label.rate > 0 && '+'}{label.rate.toLocaleString()}%)</span>
                 </div>
             </div>
         </div>

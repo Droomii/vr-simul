@@ -81,7 +81,7 @@ const ChartSettings = () => {
     }
 
     return <div className={styles.controlWrap} style={expand ? {bottom: 0} : undefined}>
-        <button type={'button'} className={styles.thumb} onClick={() => setExpand(v => !v)}>설정</button>
+        <div className={styles.thumb} onClick={() => setExpand(v => !v)}>{expand ? '▽' : '△'} 설정</div>
         <div className={styles.controlContainer}>
         <div>기간: <input type={'date'} ref={startDateRef} defaultValue={settings.startDate}
                         onChange={handleChangeStartDate}/> ~ <input type={'date'} ref={endDateRef} defaultValue={settings.endDate} onChange={handleChangeEndDate}/>
