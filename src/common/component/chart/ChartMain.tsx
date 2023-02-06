@@ -213,14 +213,11 @@ const ChartMain = () => {
 
         canvas.addEventListener('mousemove', moveHandler);
         window.addEventListener('mouseup', () => {
-          canvas.removeEventListener('mousemove', crossHandler);
-          canvas.addEventListener('mousemove', crossHandler);
 
           isMouseDown = false;
           canvas.removeEventListener('mousemove', moveHandler)
           let stop = false;
           window.addEventListener('mousedown', () => {
-            canvas.removeEventListener('mousemove', crossHandler);
             setMousePosData(null);
             stop = true;
           }, {once: true})
