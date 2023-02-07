@@ -5,11 +5,13 @@ import IStockHistory from "../../../../define/IStockHistory";
 interface LineOptions {
     stroke?: string;
     square?: boolean;
+    excludeRange?: boolean;
 }
 
 class Line extends ChartElement<number> {
     private _stroke = 'red';
     private _isSquare = false;
+    private _excludeRange = false;
 
     constructor(controller: ChartController,
     convertFunc: (data: IStockHistory[]) => number[], options?: LineOptions) {
@@ -17,7 +19,8 @@ class Line extends ChartElement<number> {
 
         if (options) {
             options.stroke && (this._stroke = options.stroke);
-            this._isSquare = options?.square ?? false;
+            this._isSquare = options.square ?? false;
+            this._excludeRange = options.excludeRange ?? false;
         }
     }
 
@@ -49,7 +52,7 @@ class Line extends ChartElement<number> {
     }
 
     get range() {
-        return this.slicedData.reduce((acc, v) => {
+        return this._excludeRange ? null : this.slicedData.reduce((acc, v) => {
             acc.highest = Math.max(acc.highest, v);
             acc.lowest = Math.min(acc.lowest, v);
             return acc;

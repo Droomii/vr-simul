@@ -69,11 +69,15 @@ const ChartMain = () => {
       const vrHistory: IVRHistory[] = root.data.map((v, i) => {
         const week = Math.floor(Util.getWeek(v.date) / settings.weekCycleUnit) - firstWeek;
         if (v.split) {
+          console.log('split', v.split)
           lastVR.costBasis /= v.split;
           lastVR.stockCount *= v.split;
-          const leftover = lastVR.stockCount - (lastVR.stockCount | 1);
+          const leftover = lastVR.stockCount - Math.floor(lastVR.stockCount);
+          console.log('leftover', leftover
+          )
+          console.log('leftover price', leftover * v.close * v.split)
           lastVR.stockCount -= leftover;
-          lastVR.savedPool += leftover * v.close;
+          lastVR.savedPool += leftover * v.close * v.ratio;
         }
         const marketValue = v.close * v.ratio * lastVR.stockCount
         if (week !== lastWeek) {
@@ -132,7 +136,7 @@ const ChartMain = () => {
       // 원금
       new Line(subCtrl, data => {
         return data.map((v, i) => vrHistory[i].totalDeposit)
-      }, {stroke: 'black', square: true})
+      }, {stroke: 'black', square: true, excludeRange: true})
 
       // 주식
       new LineArea(subCtrl, (data) => {
@@ -338,6 +342,7 @@ const ChartMain = () => {
                 <div>수량: {label.stockCount.toLocaleString()}주 {!!label.countDiff && <span
                     style={{color: label.countDiff > 0 ? 'red' : 'blue'}}>({label.countDiff > 0 && '+'}{label.countDiff.toLocaleString()})</span>}</div>
               <div>목표 V: ${label.targetValue.toLocaleString()}</div>
+              <div>종가: ${label.close.toLocaleString()}</div>
               <div>TQQQ 평가금:
                 ${label.marketPrice.toLocaleString()}</div>
               <div>목표 V 대비 <span style={{color: label.targetValueRate > 0 ? 'red' : 'blue'}}>{label.targetValueRate > 0 && '+'}{label.targetValueRate}%</span></div>
