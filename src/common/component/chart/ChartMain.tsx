@@ -69,13 +69,9 @@ const ChartMain = () => {
       const vrHistory: IVRHistory[] = root.data.map((v, i) => {
         const week = Math.floor(Util.getWeek(v.date) / settings.weekCycleUnit) - firstWeek;
         if (v.split) {
-          console.log('split', v.split)
           lastVR.costBasis /= v.split;
           lastVR.stockCount *= v.split;
           const leftover = lastVR.stockCount - Math.floor(lastVR.stockCount);
-          console.log('leftover', leftover
-          )
-          console.log('leftover price', leftover * v.close * v.split)
           lastVR.stockCount -= leftover;
           lastVR.savedPool += leftover * v.close * v.ratio;
         }
