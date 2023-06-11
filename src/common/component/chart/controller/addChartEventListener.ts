@@ -101,9 +101,6 @@ function addChartEventListener(ctrl: ChartController) {
     canvas.removeEventListener('wheel', wheelHandler)
     canvas.removeEventListener('mousemove', mouseMoveHandler)
     canvas.removeEventListener('mouseout', mouseOutHandler)
-    ctrl.onMouseMove = null;
-    ctrl.onMouseDown = null;
-    ctrl.onMouseOut = null;
   }
 }
 

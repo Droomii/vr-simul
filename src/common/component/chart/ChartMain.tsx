@@ -167,15 +167,15 @@ const ChartMain = () => {
         }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange', square: true})
 
         // event listeners
-        chartCtrl.onMouseOut = () => {
+        chartCtrl.setEventListener('mouseout', () => {
           setMousePosData(null)
-        }
+        })
 
-        chartCtrl.onMouseDown = () => {
+        chartCtrl.setEventListener('mousedown', () => {
           setMousePosData(null)
-        }
+        })
 
-        chartCtrl.onMouseMove = ({mouseY, mouseX, data, dataIndex}) => {
+        chartCtrl.setEventListener('mousemove', ({mouseY, mouseX, data, dataIndex}) => {
           setMousePosData({
             index: dataIndex,
             x: mouseX,
@@ -184,7 +184,7 @@ const ChartMain = () => {
             vrData: vrHistory[dataIndex],
             stockData: data
           });
-        }
+        })
       });
     })
 

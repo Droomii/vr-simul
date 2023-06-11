@@ -38,6 +38,12 @@ interface IMousePosData {
   valueX: number;
 }
 
+type EventHandlerMap = {
+  mousemove: ((data: IMousePosData) => void);
+  mouseout: ((data: IMousePosData) => void);
+  mousedown: ((data: IMousePosData) => void);
+}
+
 class ChartController implements IDrawable {
   private _debugName?: string;
   independentRange = false;
@@ -71,6 +77,25 @@ class ChartController implements IDrawable {
 
   addElement<Element extends keyof typeof ElementMap>(element: Element, ...options: ElementConstructorParams<typeof ElementMap[Element]>): InstanceType<typeof ElementMap[Element]> {
     return new ElementMap[element](this, ...(options as [any])) as InstanceType<typeof ElementMap[Element]>;
+  }
+
+  setEventListener<Event extends keyof EventHandlerMap>(event: Event, handler: EventHandlerMap[Event]) {
+    switch (event) {
+      case 'mousemove':
+        this.onMouseMove = handler;
+        return;
+      case 'mousedown':
+        this.onMouseDown = handler;
+        return;
+      case 'mouseout':
+        this.onMouseOut = handler;
+    }
+  }
+
+  removeEventListeners() {
+    this.onMouseDown = null;
+    this.onMouseOut = null;
+    this.onMouseMove = null;
   }
 
   addSubController(options: Omit<ControllerConstructorOptions, 'isSub'>) {
@@ -193,6 +218,7 @@ class ChartController implements IDrawable {
 
   destroy() {
     this.root.unregister(this);
+    this.removeEventListeners();
     this.cleanup?.()
   }
 
