@@ -1,76 +1,79 @@
 import IStockHistory from "../../../../define/IStockHistory";
-import ChartController from "../controller/ChartController";
-import TQQQ_virtual from "../../../../stockData/TQQQ_virtual";
+import ChartController, {ControllerConstructorOptions} from "../controller/ChartController";
 
 class ChartRoot {
-    zoom = 6;
-    offset = 0;
-    controllers: Set<ChartController> = new Set();
-    private _data: IStockHistory[] = [];
-    private _startDate = '2000-01-01';
-    private _endDate = new Date().toISOString().substring(0, 10);
-    private _slicedData: IStockHistory[] = [];
-    private _cleanup: (() => void) | null = null;
-    async loadData(ticker: string, callback: () => (() => void)) {
-        this.zoom = 0;
-        this.offset = 0;
-        this._data = await TQQQ_virtual;
-        this.updateSlice();
-        this._cleanup = callback();
-    }
+  zoom = 6;
+  offset = 0;
+  controllers: Set<ChartController> = new Set();
+  private _data: IStockHistory[] = [];
+  private _startDate = '2000-01-01';
+  private _endDate = new Date().toISOString().substring(0, 10);
+  private _slicedData: IStockHistory[] = [];
 
-    private updateSlice() {
-        this._slicedData = this._data.slice(this._data.findIndex(v => v.date >= this.startTime))
-        const endIdx = this._slicedData.findIndex(v => v.date >= this.endTime);
-        if (endIdx > -1) {
-            this._slicedData = this._slicedData.slice(0, endIdx + 1);
-        }
-    }
+  loadData(data: IStockHistory[], callback: () => void) {
+    this.zoom = 0;
+    this.offset = 0;
+    this._data = data;
+    this.updateSlice();
+    callback();
+    this.refresh();
+  }
 
-    register(controller: ChartController) {
-        this.controllers.add(controller);
-    }
+  addController(context: CanvasRenderingContext2D, options: ControllerConstructorOptions) {
+    return new ChartController(this, context, options);
+  }
 
-    get startDate(): string {
-        return this._startDate;
+  private updateSlice() {
+    this._slicedData = this._data.slice(this._data.findIndex(v => v.date >= this.startTime))
+    const endIdx = this._slicedData.findIndex(v => v.date >= this.endTime);
+    if (endIdx > -1) {
+      this._slicedData = this._slicedData.slice(0, endIdx + 1);
     }
+  }
 
-    get startTime(): number {
-     return new Date(this.startDate).getTime();
-    }
+  register(controller: ChartController) {
+    this.controllers.add(controller);
+  }
 
-    set startDate(value: string) {
-        this._startDate = value;
-    }
+  get startDate(): string {
+    return this._startDate;
+  }
 
-    get endDate(): string {
-        return this._endDate;
-    }
+  get startTime(): number {
+    return new Date(this.startDate).getTime();
+  }
 
-    get endTime(): number {
-        return new Date(this.endDate).getTime();
-    }
+  set startDate(value: string) {
+    this._startDate = value;
+  }
 
-    set endDate(value: string) {
-        this._endDate = value;
-    }
+  get endDate(): string {
+    return this._endDate;
+  }
 
-    get data() {
-        return this._slicedData;
-    }
+  get endTime(): number {
+    return new Date(this.endDate).getTime();
+  }
 
-    unregister(controller: ChartController) {
-        this.controllers.delete(controller);
-    }
+  set endDate(value: string) {
+    this._endDate = value;
+  }
 
-    readonly refresh = () => {
-        this.controllers.forEach(v => v.refresh());
-    }
+  get data() {
+    return this._slicedData;
+  }
 
-    cleanup = () => {
-        this.controllers.forEach(v => v.destroy());
-        this._cleanup?.();
-    }
+  unregister(controller: ChartController) {
+    this.controllers.delete(controller);
+  }
+
+  readonly refresh = () => {
+    this.controllers.forEach(v => v.refresh());
+  }
+
+  cleanup = () => {
+    this.controllers.forEach(v => v.destroy());
+  }
 }
 
 export default ChartRoot;
