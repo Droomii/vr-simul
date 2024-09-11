@@ -1,7 +1,22 @@
 import ChartElement from "./ChartElement";
+import ChartController from "../controller/ChartController";
+import IStockHistory from "../../../../define/IStockHistory";
 
-class Split extends ChartElement<number | null> {
-    private _stroke = 'rgba(255,0,0,0.45)';
+interface Options {
+    stroke?: string;
+}
+
+class VerticalLine extends ChartElement<boolean> {
+    private _stroke = 'red';
+
+    constructor(controller: ChartController,
+                convertFunc: (data: IStockHistory[]) => boolean[], options?: Options) {
+        super(controller, convertFunc)
+
+        if (options) {
+            options.stroke && (this._stroke = options.stroke);
+        }
+    }
 
     setColor(color: string) {
         this._stroke = color;
@@ -18,8 +33,7 @@ class Split extends ChartElement<number | null> {
                 ctx.stroke();
                 ctx.closePath();
                 ctx.textAlign = 'left';
-                ctx.fillStyle = 'red';
-                ctx.fillText(`액면${v >= 1 ? '분할' : '병합'} (${Math.max(v, 1)}:${Math.max(1, Math.round(1 / v))})`, (i + 1) * this.zoom - Math.floor((this.zoom / 2)) + 4, 12)
+                ctx.fillStyle = this._stroke;
             }
         })
     }
@@ -29,4 +43,4 @@ class Split extends ChartElement<number | null> {
     }
 }
 
-export default Split
+export default VerticalLine

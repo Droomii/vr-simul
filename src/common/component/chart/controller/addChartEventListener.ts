@@ -10,6 +10,7 @@ function addChartEventListener(ctrl: ChartController) {
     isMouseDown = true;
     const handleChangeOffset = ctrl.getOffsetSetter();
     const startX = e.x;
+    const startY = e.y;
     let movementX = 0;
     let lastX = e.x;
     let isMoving = false;
@@ -30,7 +31,10 @@ function addChartEventListener(ctrl: ChartController) {
     }
 
     canvas.addEventListener('mousemove', moveHandler);
-    window.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', (e) => {
+      if (startX === e.x && startY === e.y) {
+        ctrl.onClick?.(ctrl.getMousePosData(e))
+      }
 
       isMouseDown = false;
       canvas.removeEventListener('mousemove', moveHandler)

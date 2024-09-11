@@ -10,6 +10,7 @@ const ChartMain = () => {
   const ref = useRef<HTMLCanvasElement>(null);
   const {state: {root, settings}} = useChartContext();
   const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: ITradeHistory, stockData: IStockHistory } | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
   useEffect(() => {
     const {current: canvas} = ref;
     if (!canvas) return;
@@ -37,6 +38,7 @@ const ChartMain = () => {
           fallWickColor: "rgb(33,140,211)",
         })
 
+        const verticalLine = chartCtrl.addElement('verticalLine', data => data.map((v, i) => i === mousePosData?.index), {stroke: 'blue'})
         const startAsset = settings.startStock;
         const firstCount = Math.floor(startAsset / (root.data[0].close * root.data[0].ratio));
         const firstValue = firstCount * root.data[0].close * root.data[0].ratio;
@@ -60,62 +62,9 @@ const ChartMain = () => {
           }
         })
 
-
         chartCtrl.addElement('line', data => data.map((v, i) => {
-          // if (Math.floor(i / 10) % 2) {
-          //   return null;
-          // }
           return tradeHistory[i].costBasis
         }), )
-
-        /*chartCtrl.addElement('line', data => data.map((v, i, arr) => {
-          return arr.slice(i - 40, i).reduce((acc, v) => acc + v.close, 0) / 40
-        }), {excludeRange: true})*/
-
-/*
-        // 원금
-        subCtrl.addElement('line', data => {
-          return data.map((v, i) => vrHistory[i].totalDeposit)
-        }, {stroke: 'black', square: true, excludeRange: true})
-
-        // 주식
-        subCtrl.addElement('lineArea', (data) => {
-          return data.map(({close, ratio}, i) => {
-            const vr = vrHistory[i];
-            return {
-              top: vr.usablePool + vr.savedPool + vr.stockCount * close * ratio,
-              bottom: vr.usablePool + vr.savedPool
-            };
-          })
-        }, {bottomStroke: 'transparent'})
-
-        // use pool
-        subCtrl.addElement('lineArea', (data) => {
-          return data.map(({close}, i) => {
-            const vr = vrHistory[i];
-            return {top: vr.usablePool + vr.savedPool, bottom: vr.savedPool};
-          })
-        }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(255,213,74,0.27)'})
-
-        // inactive pool
-        subCtrl.addElement('lineArea', (data) => {
-          return data.map(({close}, i) => {
-            const vr = vrHistory[i];
-            return {top: vr.savedPool, bottom: 0};
-          })
-        }, {topStroke: 'none', bottomStroke: 'none', fill: 'rgba(0,150,8,0.27)'})
-
-        // 타겟 v
-        subCtrl.addElement('line', () => vrHistory.map(v => v.targetValue + v.usablePool + v.savedPool), {
-          stroke: '#ff0000',
-          square: true
-        })
-        // 밴드
-        subCtrl.addElement('lineArea', () => vrHistory.map(v => {
-          const totalTarget = v.targetValue + v.usablePool + v.savedPool
-          return ({top: totalTarget * (1 + settings.band / 100), bottom: totalTarget * (1 - settings.band / 100)})
-        }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange', square: true})
-*/
 
         // event listeners
         chartCtrl.setEventListener('mouseout', () => {
@@ -135,6 +84,12 @@ const ChartMain = () => {
             vrData: tradeHistory[dataIndex],
             stockData: data
           });
+        })
+
+        chartCtrl.setEventListener('click', ({dataIndex}) => {
+          setActiveIndex(dataIndex);
+          verticalLine.setConvertFunc(data => data.map((v, i) => i === dataIndex))
+          chartCtrl.refresh();
         })
       });
     })

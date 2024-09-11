@@ -10,6 +10,7 @@ import TimeGrid from "../elements/TimeGrid";
 import YTick from "../elements/YTick";
 import IDrawable from "../interface/IDrawable";
 import addChartEventListener from "./addChartEventListener";
+import VerticalLine from "../elements/VerticalLine";
 
 export interface ControllerConstructorOptions {
   debug?: string;
@@ -19,6 +20,7 @@ export interface ControllerConstructorOptions {
 
 const ElementMap = {
   line: Line,
+  verticalLine: VerticalLine,
   area: Area,
   candle: Candle,
   lineArea: LineArea,
@@ -42,6 +44,7 @@ type EventHandlerMap = {
   mousemove: ((data: IMousePosData) => void);
   mouseout: ((data: IMousePosData) => void);
   mousedown: ((data: IMousePosData) => void);
+  click: ((data: IMousePosData) => void);
 }
 
 class ChartController implements IDrawable {
@@ -54,6 +57,7 @@ class ChartController implements IDrawable {
   onMouseMove?: ((data: IMousePosData) => void) | null = null;
   onMouseOut?: ((data: IMousePosData) => void) | null = null;
   onMouseDown?: ((data: IMousePosData) => void) | null = null;
+  onClick?: ((data: IMousePosData) => void) | null = null;
 
   constructor(
     public readonly root: ChartRoot,
@@ -89,6 +93,9 @@ class ChartController implements IDrawable {
         return;
       case 'mouseout':
         this.onMouseOut = handler;
+        return;
+      case 'click':
+        this.onClick = handler;
     }
   }
 
