@@ -31,10 +31,10 @@ const ChartMain = () => {
         chartCtrl.addElement('stockSplit', data => data.map(v => v.split ?? null));
         chartCtrl.addElement('yTick');
         chartCtrl.addElement('candle', {
-          riseBoxColor: "rgba(203,104,105,0.47)",
-          riseWickColor: "rgba(229,26,28,0.45)",
-          fallBoxColor: "rgba(15,124,196,0.44)",
-          fallWickColor: "rgba(33,140,211,0.42)",
+          riseBoxColor: "rgb(229,26,28)",
+          riseWickColor: "rgb(229,26,28)",
+          fallBoxColor: "rgb(33,140,211)",
+          fallWickColor: "rgb(33,140,211)",
         })
 
         const subCtrl = chartCtrl.addSubController({log: false});
@@ -123,6 +123,18 @@ const ChartMain = () => {
           }
         })
 
+/*
+
+        chartCtrl.addElement('line', data => data.map((v, i) => {
+          return vrHistory[i].costBasis / v.ratio
+        }), {excludeRange: true})
+
+        chartCtrl.addElement('line', data => data.map((v, i, arr) => {
+          return arr.slice(i - 40, i).reduce((acc, v) => acc + v.close, 0) / 40
+        }), {excludeRange: true})
+*/
+
+/*
         // 원금
         subCtrl.addElement('line', data => {
           return data.map((v, i) => vrHistory[i].totalDeposit)
@@ -165,6 +177,7 @@ const ChartMain = () => {
           const totalTarget = v.targetValue + v.usablePool + v.savedPool
           return ({top: totalTarget * (1 + settings.band / 100), bottom: totalTarget * (1 - settings.band / 100)})
         }), {bottomStroke: 'orange', fill: 'rgba(255,203,146,0.2)', topStroke: 'orange', square: true})
+*/
 
         // event listeners
         chartCtrl.setEventListener('mouseout', () => {
@@ -180,7 +193,7 @@ const ChartMain = () => {
             index: dataIndex,
             x: mouseX,
             y: mouseY,
-            price: subCtrl.getMousePosData({x: mouseX, y: mouseY}).valueX,
+            price: chartCtrl.getMousePosData({x: mouseX, y: mouseY}).valueX,
             vrData: vrHistory[dataIndex],
             stockData: data
           });
@@ -245,26 +258,8 @@ const ChartMain = () => {
           transform: `translate(-${mousePosData.x > 300 ? 100 : 0}%, -${mousePosData.y > 300 ? 100 : 0}%)`
         }}>
             <div className={styles.label}>
-                <div>{label.date} ({label.week}주차)</div>
-                <div>원금: ${label.totalDeposit.toLocaleString()}</div>
-                <div>Pool:
-                    ${label.pool.toLocaleString()} {!!label.poolDiff && <span
-                        style={{color: label.countDiff > 0 ? 'blue' : 'red'}}>({label.poolDiff > 0 ? '+' : '-'}${Math.abs(label.poolDiff).toLocaleString()})</span>}</div>
-                <div>수량: {label.stockCount.toLocaleString()}주 {!!label.countDiff && <span
-                    style={{color: label.countDiff > 0 ? 'red' : 'blue'}}>({label.countDiff > 0 && '+'}{label.countDiff.toLocaleString()})</span>}</div>
-                <div>목표 V: ${label.targetValue.toLocaleString()}</div>
+                <div>{label.date}</div>
                 <div>종가: ${label.close.toLocaleString()}</div>
-                <div>TQQQ 평가금:
-                    ${label.marketPrice.toLocaleString()}</div>
-                <div>목표 V 대비 <span
-                    style={{color: label.targetValueRate > 0 ? 'red' : 'blue'}}>{label.targetValueRate > 0 && '+'}{label.targetValueRate}%</span>
-                </div>
-                <div>G: {label.gradient}</div>
-                <div>Pool 한도: {label.poolLimit}%</div>
-                <div>총평가금:
-                    ${label.totalValue.toLocaleString()}<span
-                        style={{color: label.rate > 0 ? 'red' : 'blue'}}>({label.rate > 0 && '+'}{label.rate.toLocaleString()}%)</span>
-                </div>
             </div>
         </div>
     </>}
