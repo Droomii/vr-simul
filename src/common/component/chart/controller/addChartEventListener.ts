@@ -34,7 +34,7 @@ function addChartEventListener(ctrl: ChartController) {
 
       isMoving = true;
       const changed = handleChangeOffset(startX - e.x)
-      movementX = (movementX + e.movementX);
+      movementX = e.movementX;
       lastX = e.x;
       changed && root.refresh();
       requestAnimationFrame(() => {
