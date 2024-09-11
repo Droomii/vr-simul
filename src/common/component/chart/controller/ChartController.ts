@@ -1,15 +1,15 @@
-import ChartRoot from "../elements/ChartRoot";
-import IDrawable from "../interface/IDrawable";
-import Line from "../elements/Line";
-import Candle from "../elements/Candle";
+import IStockHistory from "../../../../define/IStockHistory";
+import Util from "../../../../util/Util";
 import Area from "../elements/Area";
+import Candle from "../elements/Candle";
+import ChartRoot from "../elements/ChartRoot";
+import Line from "../elements/Line";
 import LineArea from "../elements/LineArea";
 import Split from "../elements/Split";
 import TimeGrid from "../elements/TimeGrid";
 import YTick from "../elements/YTick";
-import Util from "../../../../util/Util";
+import IDrawable from "../interface/IDrawable";
 import addChartEventListener from "./addChartEventListener";
-import IStockHistory from "../../../../define/IStockHistory";
 
 export interface ControllerConstructorOptions {
   debug?: string;
@@ -246,11 +246,25 @@ class ChartController implements IDrawable {
 
     const {lowest, highest} = this.range;
     const dataIndex = Math.max(Math.min(Math.floor(x / this.zoom) + this.offset, this.data.length), 0);
+
+    let valueX;
+
+    if (this.isLog) {
+      const percent = 1 - y / this.height;
+      const lowestLog = this.multiplier(lowest * 0.9)
+      const highestLog = this.multiplier(highest / 0.9)
+      const diff = highestLog - lowestLog;
+      valueX = 2 ** (lowestLog + diff * percent)
+
+    } else {
+      valueX = lowest * 0.9 + (highest / 0.9 - lowest * 0.9) * (1 - y / this.height);
+    }
+
     return {
       mouseX: Math.ceil(x / this.zoom) * this.zoom - Math.floor(this.zoom / 2),
       mouseY: y,
       dataIndex,
-      valueX: lowest * 0.9 + (highest / 0.9 - lowest * 0.9) * (1 - y / this.height),
+      valueX,
       data: this.data[dataIndex]
     }
   }
