@@ -14,19 +14,6 @@ function addChartEventListener(ctrl: ChartController) {
     let lastX = e.x;
     let isMoving = false;
 
-    const moveDecay = () => {
-      if (Math.abs(movementX) < 0.1) {
-        movementX = 0;
-      } else {
-        movementX /= 1.1;
-      }
-
-      if (isMouseDown) {
-        requestAnimationFrame(moveDecay);
-      }
-    }
-
-    moveDecay();
     const moveHandler = (e: MouseEvent) => {
       if (isMoving) {
         return;
@@ -34,7 +21,7 @@ function addChartEventListener(ctrl: ChartController) {
 
       isMoving = true;
       const changed = handleChangeOffset(startX - e.x)
-      movementX = e.movementX;
+      movementX = e.movementX / window.devicePixelRatio;
       lastX = e.x;
       changed && root.refresh();
       requestAnimationFrame(() => {

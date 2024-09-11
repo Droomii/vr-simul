@@ -46,7 +46,7 @@ const ChartMain = () => {
 
         let lastWeek = 0
         let lastHistory: ITradeHistory = {
-          costBasis: 30,
+          costBasis: 0,
           count: 0
         }
 
@@ -62,9 +62,9 @@ const ChartMain = () => {
 
 
         chartCtrl.addElement('line', data => data.map((v, i) => {
-          if (Math.floor(i / 10) % 2) {
-            return null;
-          }
+          // if (Math.floor(i / 10) % 2) {
+          //   return null;
+          // }
           return tradeHistory[i].costBasis
         }), )
 

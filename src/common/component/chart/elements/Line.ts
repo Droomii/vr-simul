@@ -31,7 +31,7 @@ class Line extends ChartElement<number | null> {
     draw() {
         const {ctx} = this;
         const {normalize} = this.controller;
-        const normalizedData = this.slicedData.map(v => v ? normalize(v) : null);
+        const normalizedData = this.slicedData.map(v => v !== null ? normalize(v) : null);
         let lastData: number | null = null;
 
         normalizedData.forEach((v, i) => {

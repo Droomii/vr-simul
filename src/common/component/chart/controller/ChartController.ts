@@ -227,7 +227,7 @@ class ChartController implements IDrawable {
   }
 
   get multiplier(): (val: number) => number {
-    if (this.isLog) return Math.log2;
+    if (this.isLog) return (val) => Math.log2(val || 0.001);
     return (v) => v;
   }
 
