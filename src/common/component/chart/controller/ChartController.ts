@@ -189,8 +189,22 @@ class ChartController implements IDrawable {
     let lastOffset = this.offset;
     return (val: number, inertia?: boolean) => {
       const newOffset = Math.min(Math.max(originalOffset + Math.floor(val / this.zoom), 0), this.data.length - this.visibleDataCount);
+
+      if (inertia) {
+        this.offset = newOffset;
+        lastOffset = newOffset;
+        if (originalOffset + Math.floor(val / this.zoom) <= 0) {
+          return true;
+        }
+
+        if (originalOffset + Math.floor(val / this.zoom) >= this.data.length - this.visibleDataCount) {
+          return true;
+        }
+        return false;
+      }
+
       if (newOffset < 0 && inertia) return true;
-      if (lastOffset === newOffset) return !!inertia;
+      if (lastOffset === newOffset) return true;
       this.offset = newOffset;
       lastOffset = newOffset;
       return !inertia;

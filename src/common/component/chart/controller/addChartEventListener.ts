@@ -11,14 +11,14 @@ function addChartEventListener(ctrl: ChartController) {
     const handleChangeOffset = ctrl.getOffsetSetter();
     const startX = e.x;
     let movementX = 0;
-    let lastX = 0;
+    let lastX = e.x;
     let isMoving = false;
 
     const moveDecay = () => {
-      if (Math.abs(movementX) < 5) {
+      if (Math.abs(movementX) < 0.1) {
         movementX = 0;
       } else {
-        movementX /= 1.2;
+        movementX /= 1.1;
       }
 
       if (isMouseDown) {
@@ -31,6 +31,7 @@ function addChartEventListener(ctrl: ChartController) {
       if (isMoving) {
         return;
       }
+
       isMoving = true;
       const changed = handleChangeOffset(startX - e.x)
       movementX = (movementX + e.movementX);
@@ -47,20 +48,25 @@ function addChartEventListener(ctrl: ChartController) {
       isMouseDown = false;
       canvas.removeEventListener('mousemove', moveHandler)
       let stop = false;
-      window.addEventListener('mousedown', (e) => {
+
+      const stopHandler = (e: MouseEvent) => {
         ctrl.onMouseDown?.(ctrl.getMousePosData(e));
-        // setMousePosData(null);
         stop = true;
-      }, {once: true})
+      }
+
+      window.addEventListener('mousedown', stopHandler, {once: true})
 
       const inertiaHandler = () => {
-        if (Math.abs(movementX) >= 1 && !stop) {
+        if (Math.abs(movementX) >= 0.2 && !stop) {
           lastX += movementX
           stop = handleChangeOffset(startX - lastX + Math.floor(movementX), true)
-          movementX += movementX > 0 ? -1 : 1;
+          movementX += movementX > 0 ? -0.2 : 0.2;
           root.refresh()
           requestAnimationFrame(inertiaHandler)
+          return;
         }
+
+        window.removeEventListener('mousedown', stopHandler)
       }
       inertiaHandler()
     }, {once: true})
