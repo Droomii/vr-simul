@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
+import {ITradeHistory} from '../../../define/ITradeHistory';
 import styles from './ChartMain.module.scss'
 import Util from "../../../util/Util";
-import IVRHistory from "../../../define/IVRHistory";
 import useChartContext from "../../../context/useChartContext";
 import IStockHistory from "../../../define/IStockHistory";
 import TQQQ_virtual from "../../../stockData/TQQQ_virtual";
@@ -9,7 +9,7 @@ import TQQQ_virtual from "../../../stockData/TQQQ_virtual";
 const ChartMain = () => {
   const ref = useRef<HTMLCanvasElement>(null);
   const {state: {root, settings}} = useChartContext();
-  const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: IVRHistory, stockData: IStockHistory } | null>(null);
+  const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: ITradeHistory, stockData: IStockHistory } | null>(null);
   useEffect(() => {
     const {current: canvas} = ref;
     if (!canvas) return;
@@ -37,8 +37,6 @@ const ChartMain = () => {
           fallWickColor: "rgb(33,140,211)",
         })
 
-        const subCtrl = chartCtrl.addSubController({log: false});
-
         const startAsset = settings.startStock;
         const firstCount = Math.floor(startAsset / (root.data[0].close * root.data[0].ratio));
         const firstValue = firstCount * root.data[0].close * root.data[0].ratio;
@@ -46,93 +44,33 @@ const ChartMain = () => {
         const firstUsablePool = firstPool * settings.getPoolLimit(0);
         const firstSavedPool = firstPool - firstUsablePool
 
-        const firstWeek = Math.floor(Util.getWeek(root.data[0].date) / settings.weekCycleUnit);
         let lastWeek = 0
-        let lastVR: IVRHistory = {
-          week: lastWeek,
-          savedPool: firstSavedPool,
-          costBasis: root.data[0].close * root.data[0].ratio,
-          usablePool: firstUsablePool,
-          stockCount: firstCount,
-          targetValue: firstValue,
-          totalDeposit: startAsset + settings.startPool,
-          poolDiff: 0,
-          countDiff: 0
+        let lastHistory: ITradeHistory = {
+          costBasis: 30,
+          count: 0
         }
 
-        const vrHistory: IVRHistory[] = root.data.map((v, i) => {
-          const week = Math.floor(Util.getWeek(v.date) / settings.weekCycleUnit) - firstWeek;
-          if (v.split) {
-            lastVR.costBasis /= v.split;
-            lastVR.stockCount *= v.split;
-            const leftover = lastVR.stockCount - Math.floor(lastVR.stockCount);
-            lastVR.stockCount -= leftover;
-            lastVR.savedPool += leftover * v.close * v.ratio;
-          }
-          const marketValue = v.close * v.ratio * lastVR.stockCount
-          if (week !== lastWeek) {
-            const totalPool = lastVR.savedPool + lastVR.usablePool;
-            const gradient = settings.getGradient(week * settings.weekCycleUnit);
-            const newPool = Math.max(totalPool + settings.getCycleDeposit(week), 0);
-            const nextValue = Math.max(lastVR.targetValue + totalPool / gradient + (settings.isAdvancedFormula ? (marketValue - lastVR.targetValue) / (2 * Math.sqrt(gradient)) : 0) + settings.getCycleDeposit(week), 0);
-            const newSavedPool = newPool * (1 - settings.getPoolLimit(week * settings.weekCycleUnit));
-            const newUsablePool = newPool - newSavedPool;
-            lastVR.totalDeposit = Math.max(lastVR.totalDeposit + settings.getCycleDeposit(week), 0)
-
-            lastWeek = week;
-            lastVR = {
-              ...lastVR,
-              week: lastWeek,
-              targetValue: nextValue,
-              savedPool: newSavedPool,
-              usablePool: newUsablePool,
-              poolDiff: 0,
-              countDiff: 0
-            }
-          }
-
-          const bandRange = settings.band / 100;
-
-          const ceilingValue = lastVR.targetValue * (1 + bandRange);
-          const bottomValue = lastVR.targetValue * (1 - bandRange);
-
-          if (marketValue > ceilingValue) {
-            const overpriced = marketValue - ceilingValue;
-            const overpriceCount = Math.floor(overpriced / (v.close * v.ratio));
-            const sold = overpriceCount * v.close * v.ratio;
-
-            lastVR.savedPool += sold;
-            lastVR.stockCount -= overpriceCount;
-            lastVR.poolDiff += sold;
-            lastVR.countDiff -= overpriceCount;
-          }
-
-          if (marketValue < bottomValue) {
-            const underpriced = Math.min(bottomValue - marketValue, lastVR.usablePool);
-            const underpriceCount = Math.floor(underpriced / (v.close * v.ratio));
-            const bought = underpriceCount * v.close * v.ratio;
-            lastVR.costBasis = (lastVR.costBasis * lastVR.stockCount + bought) / (lastVR.stockCount + underpriceCount)
-            lastVR.stockCount += underpriceCount;
-            lastVR.usablePool -= bought;
-            lastVR.poolDiff -= bought;
-            lastVR.countDiff += underpriceCount;
-          }
+        const tradeHistory: ITradeHistory[] = root.data.map((v, i) => {
+          const totalAsset = lastHistory.costBasis * lastHistory.count;
+          lastHistory.count++
+          lastHistory.costBasis = (totalAsset + v.close) / lastHistory.count
 
           return {
-            ...lastVR
+            ...lastHistory
           }
         })
 
-/*
 
         chartCtrl.addElement('line', data => data.map((v, i) => {
-          return vrHistory[i].costBasis / v.ratio
-        }), {excludeRange: true})
+          if (Math.floor(i / 10) % 2) {
+            return null;
+          }
+          return tradeHistory[i].costBasis
+        }), )
 
-        chartCtrl.addElement('line', data => data.map((v, i, arr) => {
+        /*chartCtrl.addElement('line', data => data.map((v, i, arr) => {
           return arr.slice(i - 40, i).reduce((acc, v) => acc + v.close, 0) / 40
-        }), {excludeRange: true})
-*/
+        }), {excludeRange: true})*/
 
 /*
         // 원금
@@ -193,8 +131,8 @@ const ChartMain = () => {
             index: dataIndex,
             x: mouseX,
             y: mouseY,
-            price: chartCtrl.getMousePosData({x: mouseX, y: mouseY}).valueX,
-            vrData: vrHistory[dataIndex],
+            price: chartCtrl.getMousePosData({x: mouseX, y: mouseY}).valueX * data.ratio,
+            vrData: tradeHistory[dataIndex],
             stockData: data
           });
         })
@@ -210,38 +148,10 @@ const ChartMain = () => {
     }
 
     const date = new Date(root.data[mousePosData.index].date).toISOString().substring(0, 10);
-    const week = mousePosData.vrData.week * settings.weekCycleUnit;
-    const totalDeposit = mousePosData.vrData.totalDeposit;
-    const pool = Util.dropDecimal(mousePosData.vrData.savedPool + mousePosData.vrData.usablePool, 2);
-    const stockCount = mousePosData.vrData.stockCount;
-    const marketPrice = Util.dropDecimal(mousePosData.vrData.stockCount * mousePosData.stockData.close * mousePosData.stockData.ratio, 2);
-    const totalValue = pool + marketPrice
-    const targetValue = Util.dropDecimal(mousePosData.vrData.targetValue, 2);
-    const targetValueRate = Util.dropDecimal((marketPrice / mousePosData.vrData.targetValue - 1) * 100, 2);
-    const poolDiff = Util.dropDecimal(mousePosData.vrData.poolDiff, 2);
-    const countDiff = Util.dropDecimal(mousePosData.vrData.countDiff, 2);
-    const costBasis = Util.dropDecimal(mousePosData.vrData.costBasis, 2);
     const close = Util.dropDecimal(mousePosData.stockData.close * mousePosData.stockData.ratio, 2);
-    const rate = Util.dropDecimal((totalValue / totalDeposit - 1) * 100, 2)
-    const gradient = settings.getGradient(week);
-    const poolLimit = Math.round(settings.getPoolLimit(week) * 100);
     return {
       date,
-      week,
-      totalDeposit,
-      pool,
-      stockCount,
-      marketPrice,
-      totalValue,
-      poolDiff,
-      countDiff,
-      costBasis,
       close,
-      rate,
-      gradient,
-      poolLimit,
-      targetValue,
-      targetValueRate
     }
   })();
   return <div className={styles.wrapper}>
