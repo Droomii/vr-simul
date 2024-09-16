@@ -2760,17 +2760,20 @@ const split = `Date,Stock Splits
 2009-10-01,2:1`
 
 const getJoinedData = async () => {
-    const dataFetch = await fetch(`${process.env?.PUBLIC_URL}/data/TQQQ.csv`).then(v => v.text());
-    return data + dataFetch.substring(dataFetch.indexOf('\n'));
-}
+  const {
+    splitDataCSV,
+    priceDataCSV
+  } = await fetch(`${process.env?.PUBLIC_URL}/data/TQQQ.json`).then(v => v.text()).then(JSON.parse).then(Util.convertChartDataToCSV);
 
-const getJoinedSplit = async () => {
-    const dataFetch = await fetch(`${process.env?.PUBLIC_URL}/data/TQQQ_split.csv`).then(v => v.text());
-    return split + dataFetch.substring(dataFetch.indexOf('\n'));
+  return {
+    price: data + priceDataCSV.substring(priceDataCSV.indexOf('\n')),
+    split: split + splitDataCSV.substring(splitDataCSV.indexOf('\n'))
+  }
 }
 
 const getData = async () => {
-    return Util.parseData(await getJoinedData(), await getJoinedSplit());
+  const {split, price} = await getJoinedData();
+  return Util.parseData(price, split);
 }
 
 export default getData();
