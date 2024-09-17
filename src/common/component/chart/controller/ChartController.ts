@@ -179,8 +179,9 @@ class ChartController implements IDrawable {
   }
 
   handleZoom(val: number, x: number) {
+    console.log(val)
     const rolledPos = Math.floor(x / this.zoom);
-    this.zoom = Math.min(Math.max(this.width / this.data.length, this.zoom * (1 + (val > 0 ? -0.1 : 0.1))), this.width);
+    this.zoom = Math.min(Math.max(this.width / this.data.length, this.zoom * (1 - val * 0.005)), this.width);
     const newPos = Math.floor(x / this.zoom);
     const posDiff = rolledPos - newPos;
     this.offset = Math.max(0, Math.min(this.offset + posDiff, this.data.length - this.visibleDataCount))

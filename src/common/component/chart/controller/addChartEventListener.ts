@@ -64,6 +64,7 @@ function addChartEventListener(ctrl: ChartController) {
   }
 
   const wheelHandler = (e: WheelEvent) => {
+    e.preventDefault()
     const oldZoom = ctrl.zoom
     ctrl.handleZoom(e.deltaY, e.x - canvas.getBoundingClientRect().left);
     if (ctrl.zoom !== oldZoom) {
