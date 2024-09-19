@@ -9,7 +9,7 @@ import TQQQ_virtual from "../../../stockData/TQQQ_virtual";
 const ChartMain = () => {
   const ref = useRef<HTMLCanvasElement>(null);
   const {state: {root, settings}} = useChartContext();
-  const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: ITradeHistory, stockData: IStockHistory } | null>(null);
+  const [mousePosData, setMousePosData] = useState<{ x: number, y: number, index: number, price: number, vrData: {costBasis: number, count: number}, stockData: IStockHistory } | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   useEffect(() => {
     const {current: canvas} = ref;
@@ -39,20 +39,13 @@ const ChartMain = () => {
         })
 
         const verticalLine = chartCtrl.addElement('verticalLine', data => data.map((v, i) => i === mousePosData?.index), {stroke: 'blue'})
-        const startAsset = settings.startStock;
-        const firstCount = Math.floor(startAsset / (root.data[0].close * root.data[0].ratio));
-        const firstValue = firstCount * root.data[0].close * root.data[0].ratio;
-        const firstPool = settings.startPool + startAsset - firstValue;
-        const firstUsablePool = firstPool * settings.getPoolLimit(0);
-        const firstSavedPool = firstPool - firstUsablePool
 
-        let lastWeek = 0
-        let lastHistory: ITradeHistory = {
+        let lastHistory = {
           costBasis: 0,
           count: 0
         }
 
-        const tradeHistory: ITradeHistory[] = root.data.map((v, i) => {
+        const tradeHistory = root.data.map((v, i) => {
           const totalAsset = lastHistory.costBasis * lastHistory.count;
           lastHistory.count++
           lastHistory.costBasis = (totalAsset + v.close) / lastHistory.count
@@ -62,9 +55,7 @@ const ChartMain = () => {
           }
         })
 
-        chartCtrl.addElement('line', data => data.map((v, i) => {
-          return tradeHistory[i].costBasis
-        }), )
+        const costBasisLine = chartCtrl.addElement('line', data => data.map(() => null), {excludeRange: true})
 
         // event listeners
         chartCtrl.setEventListener('mouseout', () => {
@@ -86,9 +77,29 @@ const ChartMain = () => {
           });
         })
 
-        chartCtrl.setEventListener('click', ({dataIndex}) => {
+        let buySellHistory: ITradeHistory[][] = [];
+
+        chartCtrl.setEventListener('click', ({dataIndex, data}) => {
+          if (!buySellHistory[data.date]) {
+            buySellHistory[data.date] = [];
+          }
+          buySellHistory[data.date].push({type: 'buy', price: data.close, count: 1, date: data.date})
           setActiveIndex(dataIndex);
-          verticalLine.setConvertFunc(data => data.map((v, i) => i === dataIndex))
+          verticalLine.setConvertFunc(data => data.map((v, i) => i === dataIndex));
+          let lastCount = 0;
+          let lastCostBasis = 0;
+          costBasisLine.setConvertFunc(data => data.map((v, i) => {
+            if (buySellHistory[v.date]) {
+              buySellHistory[v.date].forEach(h => {
+                const totalAsset = lastCostBasis * lastCount;
+                lastCount += h.count;
+                lastCostBasis = (totalAsset + h.price * h.count) / lastCount
+
+              })
+            }
+
+            return lastCostBasis
+          }))
           chartCtrl.refresh();
         })
       });
