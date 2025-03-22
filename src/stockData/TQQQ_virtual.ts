@@ -2763,7 +2763,7 @@ const getJoinedData = async () => {
   const {
     splitDataCSV,
     priceDataCSV
-  } = await fetch(`${process.env?.PUBLIC_URL}/data/TQQQ.json`).then(v => v.text()).then(JSON.parse).then(Util.convertChartDataToCSV);
+  } = await fetch(`https://raw.githubusercontent.com/Droomii/vr-simul/refs/heads/main/public/data/TQQQ.json`).then(v => v.text()).then(JSON.parse).then(Util.convertChartDataToCSV);
 
   return {
     price: data + priceDataCSV.substring(priceDataCSV.indexOf('\n')),
